@@ -573,19 +573,16 @@ async function () {
 DASHBOARD
 ========================================= */
 
-dashboardButton.addEventListener(
-"click",
-function () {
+  dashboardButton.addEventListener(
+    "click",
+    function () {
 
+        window.location.href =
+            "dashboard.html";
 
-    alert(
-        "DASHBOARD COMING NEXT."
-    );
+    }
+); 
 
-}
-
-
-);
 
 /* =========================================
 FRIENDLY FIREBASE ERRORS
