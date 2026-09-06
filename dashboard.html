@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+```
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Dashboard — Battle Arena</title>
+
+<link
+    rel="stylesheet"
+    href="dashboard.css"
+>
+```
+
+</head>
+
+<body>
+
+```
+<div class="dashboard-page">
+
+    <header class="dashboard-header">
+
+        <a
+            href="index.html"
+            class="dashboard-brand"
+        >
+
+            <div class="brand-symbol">
+                BA
+            </div>
+
+            <div class="brand-name">
+
+                <strong>
+                    BATTLE <span>ARENA</span>
+                </strong>
+
+                <small>
+                    ESPORTS FEDERATION
+                </small>
+
+            </div>
+
+        </a>
+
+
+        <div class="header-actions">
+
+            <a
+                href="index.html"
+                class="header-link"
+            >
+                HOME
+            </a>
+
+            <button
+                id="logoutButton"
+                class="logout-button"
+                type="button"
+            >
+                LOGOUT
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="dashboard-main">
+
+        <section class="welcome-section">
+
+            <div>
+
+                <span class="eyebrow">
+                    BATTLE ARENA
+                </span>
+
+                <h1>
+                    PLAYER <span>DASHBOARD</span>
+                </h1>
+
+                <p>
+                    Your competitive space inside Battle Arena.
+                </p>
+
+            </div>
+
+
+            <div class="account-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+
+                    <small>
+                        ACCOUNT
+                    </small>
+
+                    <strong id="userName">
+                        PLAYER
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="dashboard-grid">
+
+
+            <!-- PROFILE -->
+
+            <a
+                href="#"
+                class="dashboard-card"
+            >
+
+                <div class="card-icon">
+                    ◈
+                </div>
+
+                <div class="card-content">
+
+                    <small>
+                        PLAYER
+                    </small>
+
+                    <strong>
+                        PROFILE
+                    </strong>
+
+                    <p>
+                        Manage your player identity and account information.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+            <!-- TEAM -->
+
+            <a
+                href="#"
+                class="dashboard-card"
+            >
+
+                <div class="card-icon">
+                    ◇
+                </div>
+
+                <div class="card-content">
+
+                    <small>
+                        COMPETITION
+                    </small>
+
+                    <strong>
+                        MY TEAM
+                    </strong>
+
+                    <p>
+                        Team management and competitive identity.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+            <!-- TOURNAMENTS -->
+
+            <a
+                href="#"
+                class="dashboard-card"
+            >
+
+                <div class="card-icon">
+                    ◎
+                </div>
+
+                <div class="card-content">
+
+                    <small>
+                        BATTLE ARENA
+                    </small>
+
+                    <strong>
+                        TOURNAMENTS
+                    </strong>
+
+                    <p>
+                        Explore competitive events and participation.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+            <!-- LEADERBOARD -->
+
+            <a
+                href="#"
+                class="dashboard-card"
+            >
+
+                <div class="card-icon">
+                    ☆
+                </div>
+
+                <div class="card-content">
+
+                    <small>
+                        RANKINGS
+                    </small>
+
+                    <strong>
+                        LEADERBOARD
+                    </strong>
+
+                    <p>
+                        Track rankings, performance and progression.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+            <!-- RULES BOOK -->
+
+            <a
+                href="rules.html"
+                class="dashboard-card featured-card"
+            >
+
+                <div class="card-icon">
+                    ◫
+                </div>
+
+                <div class="card-content">
+
+                    <small>
+                        OFFICIAL GUIDE
+                    </small>
+
+                    <strong>
+                        RULES BOOK
+                    </strong>
+
+                    <p>
+                        Read the Battle Arena competition rules and standards.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+            <!-- SETTINGS -->
+
+            <a
+                href="#"
+                class="dashboard-card"
+            >
+
+                <div class="card-icon">
+                    ⚙
+                </div>
+
+                <div class="card-content">
+
+                    <small>
+                        ACCOUNT
+                    </small>
+
+                    <strong>
+                        SETTINGS
+                    </strong>
+
+                    <p>
+                        Account preferences and future controls.
+                    </p>
+
+                </div>
+
+                <span class="card-arrow">
+                    →
+                </span>
+
+            </a>
+
+
+        </section>
+
+
+        <section class="dashboard-quote">
+
+            <div class="quote-line"></div>
+
+            <h2>
+                YOUR SKILL DEFINES
+                <span>YOUR PLACE.</span>
+            </h2>
+
+            <p>
+                Compete with purpose. Improve with every battle.
+            </p>
+
+        </section>
+
+
+    </main>
+
+
+    <footer class="dashboard-footer">
+
+        <span>
+            BATTLE ARENA
+        </span>
+
+        <span>
+            ESPORTS FEDERATION
+        </span>
+
+    </footer>
+
+
+</div>
+
+
+<!-- Firebase -->
+
+<script type="module">
+
+    import {
+        initializeApp
+    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+
+    import {
+        getAuth,
+        onAuthStateChanged,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+
+    const firebaseConfig = {
+
+        apiKey:
+            "AIzaSyAX5v1-Fq-ujlFdxI_K-nqOq7RnI_xDFMw",
+
+        authDomain:
+            "battle-arena-64da6.firebaseapp.com",
+
+        projectId:
+            "battle-arena-64da6",
+
+        storageBucket:
+            "battle-arena-64da6.firebasestorage.app",
+
+        messagingSenderId:
+            "17903384440",
+
+        appId:
+            "1:17903384440:web:05998e4b7187752891ba8d",
+
+        measurementId:
+            "G-QBP2VD2GGX"
+    };
+
+
+    const app =
+        initializeApp(
+            firebaseConfig
+        );
+
+
+    const auth =
+        getAuth(app);
+
+
+    const userName =
+        document.getElementById(
+            "userName"
+        );
+
+
+    onAuthStateChanged(
+        auth,
+        function(user) {
+
+            if (!user) {
+
+                window.location.href =
+                    "index.html";
+
+                return;
+            }
+
+
+            userName.textContent =
+                user.displayName ||
+                user.email ||
+                "PLAYER";
+
+        }
+    );
+
+
+    document
+        .getElementById("logoutButton")
+        .addEventListener(
+            "click",
+            async function() {
+
+                try {
+
+                    await signOut(auth);
+
+                    window.location.href =
+                        "index.html";
+
+                } catch (error) {
+
+                    console.error(
+                        "LOGOUT ERROR:",
+                        error
+                    );
+
+                }
+
+            }
+        );
+
+</script>
+```
+
+</body>
+
+</html>
