@@ -7,7 +7,9 @@ getAuth,
 createUserWithEmailAndPassword,
 signInWithEmailAndPassword,
 sendPasswordResetEmail,
-updateProfile
+updateProfile,
+onAuthStateChanged,
+signOut
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
 /* =========================================
@@ -15,52 +17,108 @@ FIREBASE CONFIG
 ========================================= */
 
 const firebaseConfig = {
-apiKey: "AIzaSyAX5v1-Fq-ujlFdxI_K-nqOq7RnI_xDFMw",
-authDomain: "battle-arena-64da6.firebaseapp.com",
-projectId: "battle-arena-64da6",
-storageBucket: "battle-arena-64da6.firebasestorage.app",
-messagingSenderId: "17903384440",
-appId: "1:17903384440:web:05998e4b7187752891ba8d",
-measurementId: "G-QBP2VD2GGX"
+
+
+apiKey:
+    "AIzaSyAX5v1-Fq-ujlFdxI_K-nqOq7RnI_xDFMw",
+
+authDomain:
+    "battle-arena-64da6.firebaseapp.com",
+
+projectId:
+    "battle-arena-64da6",
+
+storageBucket:
+    "battle-arena-64da6.firebasestorage.app",
+
+messagingSenderId:
+    "17903384440",
+
+appId:
+    "1:17903384440:web:05998e4b7187752891ba8d",
+
+measurementId:
+    "G-QBP2VD2GGX"
+
 };
 
 /* =========================================
 INITIALIZE FIREBASE
 ========================================= */
 
-const app =
-initializeApp(firebaseConfig);
+const firebaseApp =
+initializeApp(
+firebaseConfig
+);
 
 const auth =
-getAuth(app);
+getAuth(
+firebaseApp
+);
 
 /* =========================================
 ELEMENTS
 ========================================= */
 
+const authPage =
+document.getElementById(
+"authPage"
+);
+
+const homePage =
+document.getElementById(
+"homePage"
+);
+
 const loginTab =
-document.getElementById("loginTab");
+document.getElementById(
+"loginTab"
+);
 
 const registerTab =
-document.getElementById("registerTab");
+document.getElementById(
+"registerTab"
+);
 
 const loginForm =
-document.getElementById("loginForm");
+document.getElementById(
+"loginForm"
+);
 
 const registerForm =
-document.getElementById("registerForm");
+document.getElementById(
+"registerForm"
+);
 
 const message =
-document.getElementById("message");
+document.getElementById(
+"message"
+);
 
 const forgotPassword =
-document.getElementById("forgotPassword");
+document.getElementById(
+"forgotPassword"
+);
 
 const loginButton =
-document.getElementById("loginButton");
+document.getElementById(
+"loginButton"
+);
 
 const registerButton =
-document.getElementById("registerButton");
+document.getElementById(
+"registerButton"
+);
+
+const logoutButton =
+document.getElementById(
+"logoutButton"
+);
+
+const dashboardButton =
+document.getElementById(
+"dashboardButton"
+);
 
 /* =========================================
 MESSAGE
@@ -72,13 +130,78 @@ type = ""
 ) {
 
 
-message.textContent = text;
+message.textContent =
+    text;
 
-message.className = "message";
+message.className =
+    "message";
 
 if (type) {
-    message.classList.add(type);
+
+    message.classList.add(
+        type
+    );
+
 }
+
+}
+
+/* =========================================
+SHOW LOGIN
+========================================= */
+
+function showLogin() {
+
+
+loginTab.classList.add(
+    "active"
+);
+
+registerTab.classList.remove(
+    "active"
+);
+
+loginForm.classList.remove(
+    "hidden"
+);
+
+registerForm.classList.add(
+    "hidden"
+);
+
+showMessage(
+    ""
+);
+
+
+}
+
+/* =========================================
+SHOW REGISTER
+========================================= */
+
+function showRegister() {
+
+
+registerTab.classList.add(
+    "active"
+);
+
+loginTab.classList.remove(
+    "active"
+);
+
+registerForm.classList.remove(
+    "hidden"
+);
+
+loginForm.classList.add(
+    "hidden"
+);
+
+showMessage(
+    ""
+);
 
 
 }
@@ -89,22 +212,7 @@ LOGIN TAB
 
 loginTab.addEventListener(
 "click",
-function () {
-
-
-    loginTab.classList.add("active");
-
-    registerTab.classList.remove("active");
-
-    loginForm.classList.remove("hidden");
-
-    registerForm.classList.add("hidden");
-
-    showMessage("");
-
-}
-
-
+showLogin
 );
 
 /* =========================================
@@ -113,22 +221,7 @@ REGISTER TAB
 
 registerTab.addEventListener(
 "click",
-function () {
-
-
-    registerTab.classList.add("active");
-
-    loginTab.classList.remove("active");
-
-    registerForm.classList.remove("hidden");
-
-    loginForm.classList.add("hidden");
-
-    showMessage("");
-
-}
-
-
+showRegister
 );
 
 /* =========================================
@@ -155,7 +248,8 @@ async function (event) {
         ).value;
 
 
-    loginButton.disabled = true;
+    loginButton.disabled =
+        true;
 
 
     showMessage(
@@ -177,23 +271,28 @@ async function (event) {
             "success"
         );
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
             "LOGIN ERROR:",
             error
         );
 
-
         showMessage(
-            getFriendlyError(error),
+            getFriendlyError(
+                error
+            ),
             "error"
         );
 
-    } finally {
+    }
 
-        loginButton.disabled = false;
+    finally {
+
+        loginButton.disabled =
+            false;
 
     }
 
@@ -265,7 +364,8 @@ async function (event) {
     }
 
 
-    registerButton.disabled = true;
+    registerButton.disabled =
+        true;
 
 
     showMessage(
@@ -283,14 +383,11 @@ async function (event) {
             );
 
 
-        const user =
-            userCredential.user;
-
-
         await updateProfile(
-            user,
+            userCredential.user,
             {
-                displayName: username
+                displayName:
+                    username
             }
         );
 
@@ -303,23 +400,28 @@ async function (event) {
 
         registerForm.reset();
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
             "REGISTER ERROR:",
             error
         );
 
-
         showMessage(
-            getFriendlyError(error),
+            getFriendlyError(
+                error
+            ),
             "error"
         );
 
-    } finally {
+    }
 
-        registerButton.disabled = false;
+    finally {
+
+        registerButton.disabled =
+            false;
 
     }
 
@@ -372,17 +474,19 @@ async function () {
             "success"
         );
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
-            "PASSWORD RESET ERROR:",
+            "RESET PASSWORD ERROR:",
             error
         );
 
-
         showMessage(
-            getFriendlyError(error),
+            getFriendlyError(
+                error
+            ),
             "error"
         );
 
@@ -394,36 +498,159 @@ async function () {
 );
 
 /* =========================================
-FIREBASE ERROR MESSAGES
+AUTH STATE
 ========================================= */
 
-function getFriendlyError(error) {
+onAuthStateChanged(
+auth,
+function (user) {
 
 
-switch (error.code) {
+    if (user) {
+
+        authPage.classList.add(
+            "hidden"
+        );
+
+        homePage.classList.remove(
+            "hidden"
+        );
+
+    } else {
+
+        authPage.classList.remove(
+            "hidden"
+        );
+
+        homePage.classList.add(
+            "hidden"
+        );
+
+    }
+
+}
+
+
+);
+
+/* =========================================
+LOGOUT
+========================================= */
+
+logoutButton.addEventListener(
+"click",
+async function () {
+
+
+    try {
+
+        await signOut(
+            auth
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "LOGOUT ERROR:",
+            error
+        );
+
+        showMessage(
+            "LOGOUT FAILED.",
+            "error"
+        );
+
+    }
+
+}
+
+
+);
+
+/* =========================================
+DASHBOARD
+========================================= */
+
+dashboardButton.addEventListener(
+"click",
+function () {
+
+
+    alert(
+        "DASHBOARD COMING NEXT."
+    );
+
+}
+
+
+);
+
+/* =========================================
+FRIENDLY FIREBASE ERRORS
+========================================= */
+
+function getFriendlyError(
+error
+) {
+
+
+switch (
+    error.code
+) {
 
     case "auth/email-already-in-use":
-        return "THIS EMAIL IS ALREADY REGISTERED.";
+
+        return (
+            "THIS EMAIL IS ALREADY REGISTERED."
+        );
+
 
     case "auth/invalid-email":
-        return "PLEASE ENTER A VALID EMAIL.";
+
+        return (
+            "PLEASE ENTER A VALID EMAIL."
+        );
+
 
     case "auth/weak-password":
-        return "PASSWORD IS TOO WEAK.";
+
+        return (
+            "PASSWORD IS TOO WEAK."
+        );
+
 
     case "auth/invalid-credential":
-        return "INVALID EMAIL OR PASSWORD.";
+
+        return (
+            "INVALID EMAIL OR PASSWORD."
+        );
+
 
     case "auth/user-not-found":
-        return "ACCOUNT NOT FOUND.";
+
+        return (
+            "ACCOUNT NOT FOUND."
+        );
+
 
     case "auth/wrong-password":
-        return "INCORRECT PASSWORD.";
+
+        return (
+            "INCORRECT PASSWORD."
+        );
+
 
     case "auth/too-many-requests":
-        return "TOO MANY ATTEMPTS. TRY AGAIN LATER.";
+
+        return (
+            "TOO MANY ATTEMPTS. TRY AGAIN LATER."
+        );
+
 
     default:
+
         return (
             error.message ||
             "AN ERROR OCCURRED."
