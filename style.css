@@ -1159,3 +1159,38 @@ MOBILE
 
 
 }
+.rules-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-top: 25px;
+
+    padding: 13px 20px;
+
+    border: 1px solid rgba(41, 220, 255, 0.35);
+
+    border-radius: 9px;
+
+    background: rgba(41, 220, 255, 0.05);
+
+    color: #f7f9ff;
+
+    text-decoration: none;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 1.5px;
+
+    transition: 0.2s ease;
+}
+
+.rules-button:hover {
+    background: #29dcff;
+    color: #07101c;
+
+    border-color: #29dcff;
+
+    transform: translateY(-2px);
+}
