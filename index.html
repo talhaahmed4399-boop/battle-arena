@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+
 <title>Battle Arena</title>
 
 <link rel="stylesheet" href="style.css">
@@ -14,7 +15,11 @@
 
 <body>
 
-<main class="auth-page">
+<!-- ==============================
+     AUTH PAGE
+=============================== -->
+
+<main id="authPage" class="auth-page">
 
     <div class="background-glow glow-one"></div>
     <div class="background-glow glow-two"></div>
@@ -61,7 +66,7 @@
             </div>
 
 
-            <!-- LOGIN -->
+            <!-- LOGIN FORM -->
 
             <form id="loginForm" class="auth-form">
 
@@ -76,7 +81,7 @@
                     </h2>
 
                     <p>
-                        Login to continue.
+                        Login to continue to Battle Arena.
                     </p>
 
                 </div>
@@ -131,17 +136,17 @@
 
                 <button
                     type="submit"
-                    class="submit-button"
                     id="loginButton"
+                    class="submit-button"
                 >
                     LOGIN
-                    <span>?</span>
+                    <span>→</span>
                 </button>
 
             </form>
 
 
-            <!-- REGISTER -->
+            <!-- REGISTER FORM -->
 
             <form
                 id="registerForm"
@@ -159,7 +164,7 @@
                     </h2>
 
                     <p>
-                        Create your account to enter the arena.
+                        Create your account and enter the arena.
                     </p>
 
                 </div>
@@ -238,11 +243,11 @@
 
                 <button
                     type="submit"
-                    class="submit-button"
                     id="registerButton"
+                    class="submit-button"
                 >
                     CREATE ACCOUNT
-                    <span>?</span>
+                    <span>→</span>
                 </button>
 
             </form>
@@ -266,8 +271,190 @@
 </main>
 
 
-<script type="module" src="app.js"></script>
+<!-- ==============================
+     HOME PAGE
+=============================== -->
 
+<main id="homePage" class="home-page hidden">
+
+    <header class="home-header">
+
+        <div class="home-brand">
+
+            <div class="home-brand-symbol">
+                BA
+            </div>
+
+            <div>
+                <strong>
+                    BATTLE <span>ARENA</span>
+                </strong>
+
+                <small>
+                    COMPETITIVE GAMING PLATFORM
+                </small>
+            </div>
+
+        </div>
+
+
+        <div class="home-actions">
+
+            <button
+                type="button"
+                id="dashboardButton"
+                class="dashboard-button"
+            >
+                DASHBOARD
+                <span>→</span>
+            </button>
+
+            <button
+                type="button"
+                id="logoutButton"
+                class="logout-button"
+            >
+                LOGOUT
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <section class="home-hero">
+
+        <div class="hero-content">
+
+            <span class="hero-eyebrow">
+                BATTLE ARENA
+            </span>
+
+            <h1>
+                COMPETE WITH
+                <span>PURPOSE.</span>
+            </h1>
+
+            <p class="hero-slogan">
+                ENTER THE ARENA. BUILD YOUR LEGACY.
+            </p>
+
+            <p class="hero-description">
+                Battle Arena is built for competitive players
+                who want more than just another gaming platform.
+                Our goal is to create a focused environment where
+                skill, discipline, consistency and competition come
+                together in one place.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <section class="home-content">
+
+        <div class="info-card">
+
+            <span class="card-label">
+                OUR PURPOSE
+            </span>
+
+            <h2>
+                Built for Competition
+            </h2>
+
+            <p>
+                Battle Arena exists to create a professional
+                competitive space for gamers. We aim to connect
+                players through meaningful competition and give
+                talented individuals a platform where their
+                performance can speak for itself.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <span class="card-label">
+                OUR MISSION
+            </span>
+
+            <h2>
+                Turn Skill Into Progress
+            </h2>
+
+            <p>
+                Our mission is to encourage players to improve,
+                compete fairly and build long-term consistency.
+                Every match, every decision and every result is
+                part of the journey toward becoming better.
+            </p>
+
+        </div>
+
+
+        <div class="info-card">
+
+            <span class="card-label">
+                OUR MOTIVE
+            </span>
+
+            <h2>
+                Compete. Improve. Rise.
+            </h2>
+
+            <p>
+                We believe competition should create opportunity.
+                Battle Arena is designed around the idea that every
+                player deserves a chance to prove their ability,
+                challenge stronger opponents and grow through
+                competition.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <section class="statement-section">
+
+        <div class="statement-line"></div>
+
+        <h2>
+            YOUR SKILL DEFINES
+            <span>YOUR PLACE.</span>
+        </h2>
+
+        <p>
+            No shortcuts. No excuses. Just competition.
+        </p>
+
+    </section>
+
+
+    <footer class="home-footer">
+
+        <div>
+            BATTLE ARENA
+        </div>
+
+        <span>
+            COMPETE WITH PURPOSE.
+        </span>
+
+    </footer>
+
+</main>
+
+
+<!-- FIREBASE -->
+
+<script
+    type="module"
+    src="app.js"
+></script>
 
 </body>
 </html>
