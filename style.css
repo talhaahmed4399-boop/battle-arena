@@ -6,7 +6,7 @@
 
 :root {
 
-```
+
 --bg: #070918;
 --bg-two: #0b1026;
 
@@ -23,7 +23,7 @@
 
 --success: #63e6a4;
 --danger: #ff7080;
-```
+
 
 }
 
@@ -34,7 +34,7 @@ min-height: 100%;
 
 body {
 
-```
+
 font-family:
     Arial,
     Helvetica,
@@ -58,7 +58,7 @@ background:
         var(--bg),
         var(--bg-two)
     );
-```
+
 
 }
 
@@ -81,7 +81,7 @@ AUTH PAGE
 
 .auth-page {
 
-```
+
 min-height: 100vh;
 
 display: flex;
@@ -93,14 +93,14 @@ padding: 25px;
 position: relative;
 
 overflow: hidden;
-```
+
 
 }
 
 .auth-page::before,
 .home-page::before {
 
-```
+
 content: "";
 
 position: fixed;
@@ -121,13 +121,12 @@ background-image:
 background-size: 42px 42px;
 
 pointer-events: none;
-```
+
 
 }
 
 .background-glow {
 
-```
 position: fixed;
 
 width: 370px;
@@ -140,35 +139,35 @@ filter: blur(100px);
 opacity: 0.16;
 
 pointer-events: none;
-```
+
 
 }
 
 .glow-one {
 
-```
+
 top: -140px;
 left: -120px;
 
 background: var(--cyan);
-```
+
 
 }
 
 .glow-two {
 
-```
+
 right: -120px;
 bottom: -140px;
 
 background: var(--violet);
-```
+
 
 }
 
 .auth-container {
 
-```
+
 width: 100%;
 
 max-width: 430px;
@@ -176,23 +175,23 @@ max-width: 430px;
 position: relative;
 
 z-index: 2;
-```
+
 
 }
 
 .brand {
 
-```
+
 text-align: center;
 
 margin-bottom: 25px;
-```
+
 
 }
 
 .brand-symbol {
 
-```
+
 width: 65px;
 height: 65px;
 
@@ -221,33 +220,32 @@ font-weight: 900;
 font-size: 19px;
 
 letter-spacing: 1px;
-```
+
 
 }
 
 .brand h1 {
 
-```
+
 font-size: 29px;
 
 font-weight: 900;
 
 letter-spacing: 4px;
-```
+
 
 }
 
 .brand h1 span {
 
-```
+
 color: var(--cyan);
-```
+
 
 }
 
 .brand p {
 
-```
 margin-top: 8px;
 
 color: var(--muted);
@@ -255,13 +253,12 @@ color: var(--muted);
 font-size: 10px;
 
 letter-spacing: 2.3px;
-```
+
 
 }
 
 .auth-card {
 
-```
 padding: 27px;
 
 border-radius: 22px;
@@ -279,13 +276,13 @@ box-shadow:
     0 30px 90px rgba(0,0,0,0.45);
 
 backdrop-filter: blur(18px);
-```
+
 
 }
 
 .auth-tabs {
 
-```
+
 display: grid;
 
 grid-template-columns: 1fr 1fr;
@@ -300,13 +297,13 @@ border-radius: 12px;
 
 background:
     rgba(255,255,255,0.035);
-```
+
 
 }
 
 .tab {
 
-```
+
 padding: 12px;
 
 border-radius: 9px;
@@ -322,32 +319,31 @@ font-weight: 900;
 letter-spacing: 1.5px;
 
 cursor: pointer;
-```
+
 
 }
 
 .tab.active {
 
-```
+
 background:
     var(--panel-two);
 
 color: var(--white);
-```
+
 
 }
 
 .form-heading {
 
-```
 margin-bottom: 22px;
-```
+
 
 }
 
 .eyebrow {
 
-```
+
 display: inline-block;
 
 margin-bottom: 8px;
@@ -359,43 +355,43 @@ font-size: 9px;
 font-weight: 900;
 
 letter-spacing: 1.8px;
-```
+
 
 }
 
 .form-heading h2 {
 
-```
+
 font-size: 24px;
 
 font-weight: 900;
-```
+
 
 }
 
 .form-heading p {
 
-```
+
 margin-top: 7px;
 
 color: var(--muted);
 
 font-size: 12px;
-```
+
 
 }
 
 .field {
 
-```
+
 margin-bottom: 16px;
-```
+
 
 }
 
 .field label {
 
-```
+
 display: block;
 
 margin-bottom: 7px;
@@ -407,13 +403,13 @@ font-size: 9px;
 font-weight: 900;
 
 letter-spacing: 1.3px;
-```
+
 
 }
 
 .field input {
 
-```
+
 width: 100%;
 
 height: 49px;
@@ -430,46 +426,46 @@ background:
 color: var(--white);
 
 outline: none;
-```
+
 
 }
 
 .field input::placeholder {
 
-```
+
 color: #68728d;
-```
+
 
 }
 
 .field input:focus {
 
-```
+
 border-color:
     rgba(41,220,255,0.55);
 
 box-shadow:
     0 0 0 3px
     rgba(41,220,255,0.07);
-```
+
 
 }
 
 .form-extra {
 
-```
+
 display: flex;
 
 justify-content: flex-end;
 
 margin-bottom: 17px;
-```
+
 
 }
 
 .text-button {
 
-```
+
 background: transparent;
 
 color: var(--cyan);
@@ -477,13 +473,13 @@ color: var(--cyan);
 font-size: 11px;
 
 cursor: pointer;
-```
+
 
 }
 
 .submit-button {
 
-```
+
 width: 100%;
 
 height: 50px;
@@ -513,23 +509,23 @@ font-weight: 900;
 letter-spacing: 1.3px;
 
 cursor: pointer;
-```
+
 
 }
 
 .submit-button:disabled {
 
-```
+
 opacity: 0.55;
 
 cursor: not-allowed;
-```
+
 
 }
 
 .message {
 
-```
+
 min-height: 20px;
 
 margin-top: 14px;
@@ -541,7 +537,7 @@ color: var(--muted);
 font-size: 11px;
 
 line-height: 1.5;
-```
+
 
 }
 
@@ -555,7 +551,7 @@ color: var(--danger);
 
 .footer-text {
 
-```
+
 margin-top: 19px;
 
 text-align: center;
@@ -567,7 +563,7 @@ font-size: 9px;
 font-weight: 800;
 
 letter-spacing: 2px;
-```
+
 
 }
 
@@ -577,7 +573,7 @@ HOME PAGE
 
 .home-page {
 
-```
+
 min-height: 100vh;
 
 background:
@@ -596,13 +592,13 @@ background:
 position: relative;
 
 overflow: hidden;
-```
+
 
 }
 
 .home-header {
 
-```
+
 height: 78px;
 
 display: flex;
@@ -623,25 +619,25 @@ backdrop-filter: blur(14px);
 position: relative;
 
 z-index: 10;
-```
+
 
 }
 
 .home-brand {
 
-```
+
 display: flex;
 
 align-items: center;
 
 gap: 12px;
-```
+
 
 }
 
 .home-brand-symbol {
 
-```
+
 width: 38px;
 height: 38px;
 
@@ -661,33 +657,32 @@ color: var(--cyan);
 font-weight: 900;
 
 font-size: 11px;
-```
+
 
 }
 
 .home-brand strong {
 
-```
+
 display: block;
 
 font-size: 14px;
 
 letter-spacing: 1.7px;
-```
+
 
 }
 
 .home-brand strong span {
 
-```
+
 color: var(--cyan);
-```
+
 
 }
 
 .home-brand small {
 
-```
 display: block;
 
 margin-top: 4px;
@@ -697,26 +692,26 @@ color: #69738f;
 font-size: 8px;
 
 letter-spacing: 1.3px;
-```
+
 
 }
 
 .home-actions {
 
-```
+
 display: flex;
 
 align-items: center;
 
 gap: 9px;
-```
+
 
 }
 
 .dashboard-button,
 .logout-button {
 
-```
+
 height: 39px;
 
 padding: 0 15px;
@@ -730,13 +725,13 @@ font-weight: 900;
 letter-spacing: 1.2px;
 
 cursor: pointer;
-```
+
 
 }
 
 .dashboard-button {
 
-```
+
 background:
     linear-gradient(
         90deg,
@@ -745,13 +740,13 @@ background:
     );
 
 color: #07101c;
-```
+
 
 }
 
 .logout-button {
 
-```
+
 background:
     rgba(255,255,255,0.035);
 
@@ -759,7 +754,7 @@ border:
     1px solid var(--border);
 
 color: var(--muted);
-```
+
 
 }
 
@@ -767,7 +762,7 @@ color: var(--muted);
 
 .home-hero {
 
-```
+
 min-height: 500px;
 
 max-width: 1180px;
@@ -785,21 +780,18 @@ align-items: center;
 position: relative;
 
 z-index: 2;
-```
 
 }
 
 .hero-content {
 
-```
 max-width: 810px;
-```
 
 }
 
 .hero-eyebrow {
 
-```
+
 color: var(--cyan);
 
 font-size: 10px;
@@ -807,7 +799,7 @@ font-size: 10px;
 font-weight: 900;
 
 letter-spacing: 3px;
-```
+
 
 }
 
