@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Player Profile | Battle Arena</title>
+
+    <link
+        rel="stylesheet"
+        href="profile.css"
+    >
+
+</head>
+
+
+<body>
+
+<header class="profile-header">
+
+    <a
+        href="index.html"
+        class="brand"
+    >
+        BATTLE <span>ARENA</span>
+    </a>
+
+
+    <a
+        href="index.html"
+        class="back-btn"
+    >
+        ← HOME
+    </a>
+
+</header>
+
+
+<main class="profile-wrapper">
+
+
+    <div class="profile-heading">
+
+        <span>
+            PLAYER IDENTITY
+        </span>
+
+        <h1>
+            PLAYER PROFILE
+        </h1>
+
+        <p>
+            Your official competitive identity inside Battle Arena.
+        </p>
+
+    </div>
+
+
+    <!-- CREATE PANEL -->
+
+    <section
+        id="createProfilePanel"
+        class="create-panel hidden"
+    >
+
+        <div class="create-icon">
+            +
+        </div>
+
+        <span>
+            PLAYER IDENTITY
+        </span>
+
+        <h2>
+            CREATE YOUR PROFILE
+        </h2>
+
+        <p>
+            Build your official Battle Arena player identity
+            before entering competitive tournaments.
+        </p>
+
+        <button
+            id="startCreateBtn"
+            class="primary-btn"
+            type="button"
+        >
+            CREATE PROFILE
+        </button>
+
+    </section>
+
+
+    <!-- PROFILE CARD -->
+
+    <section
+        id="profileCard"
+        class="profile-card hidden"
+    >
+
+        <button
+            id="editProfileBtn"
+            class="edit-profile-btn"
+            type="button"
+        >
+            EDIT PROFILE
+        </button>
+
+
+        <div class="profile-card-top">
+
+            <div class="avatar-wrapper">
+
+                <img
+                    id="profileAvatar"
+                    src=""
+                    alt="Player Avatar"
+                >
+
+                <div class="avatar-ring"></div>
+
+            </div>
+
+
+            <div class="player-main">
+
+                <span class="player-label">
+                    BATTLE ARENA PLAYER
+                </span>
+
+                <h2 id="displayName">
+                    -
+                </h2>
+
+                <div class="ingame-name">
+
+                    <span>
+                        IGN
+                    </span>
+
+                    <strong id="displayIngameName">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="profile-divider"></div>
+
+
+        <div class="profile-grid">
+
+            <div class="info-box">
+
+                <span>
+                    FULL NAME
+                </span>
+
+                <strong id="displayFullName">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <span>
+                    FREE FIRE UID
+                </span>
+
+                <strong id="displayUid">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <span>
+                    WHATSAPP
+                </span>
+
+                <strong id="displayWhatsapp">
+                    PRIVATE
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <span>
+                    PLAYER STATUS
+                </span>
+
+                <strong class="verified">
+                    REGISTERED PLAYER
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="profile-note">
+
+            <span>
+                ⚡
+            </span>
+
+            <p>
+                This profile represents your competitive
+                identity inside Battle Arena.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- PROFILE FORM -->
+
+    <section
+        id="profileFormPanel"
+        class="form-panel hidden"
+    >
+
+        <div class="form-header">
+
+            <div>
+
+                <span>
+                    PLAYER REGISTRATION
+                </span>
+
+                <h2>
+                    CREATE PLAYER PROFILE
+                </h2>
+
+            </div>
+
+
+            <button
+                id="closeFormBtn"
+                class="close-btn"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="profileForm">
+
+
+            <!-- AVATAR -->
+
+            <div class="avatar-upload-area">
+
+                <div class="upload-preview">
+
+                    <img
+                        id="avatarPreview"
+                        src=""
+                        alt="Avatar Preview"
+                    >
+
+                    <span
+                        id="avatarPlaceholder"
+                    >
+                        +
+                    </span>
+
+                </div>
+
+
+                <div class="upload-info">
+
+                    <label for="avatarInput">
+                        UPLOAD PROFILE PIC
+                    </label>
+
+                    <input
+                        id="avatarInput"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                    >
+
+                    <small>
+                        JPG, PNG or WEBP • Max 5MB
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <div class="form-grid">
+
+
+                <div class="field">
+
+                    <label>
+                        YOUR NAME
+                    </label>
+
+                    <input
+                        id="fullName"
+                        type="text"
+                        placeholder="Enter your full name"
+                        maxlength="60"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        IN-GAME NAME
+                    </label>
+
+                    <input
+                        id="ingameName"
+                        type="text"
+                        placeholder="Enter your Free Fire name"
+                        maxlength="30"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        FREE FIRE UID
+                    </label>
+
+                    <input
+                        id="ffUid"
+                        type="text"
+                        inputmode="numeric"
+                        placeholder="Enter your FF UID"
+                        maxlength="20"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        WHATSAPP NUMBER
+                    </label>
+
+                    <input
+                        id="whatsapp"
+                        type="tel"
+                        placeholder="03XXXXXXXXX"
+                        maxlength="20"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="safe-note">
+
+                <strong>
+                    🔐 YOUR INFORMATION REMAINS SAFE
+                </strong>
+
+                <p>
+                    Your profile information is securely associated
+                    with your Battle Arena account.
+                </p>
+
+            </div>
+
+
+            <div
+                id="formStatus"
+                class="form-status"
+            ></div>
+
+
+            <button
+                id="saveProfileBtn"
+                type="submit"
+                class="save-btn"
+            >
+                SAVE PLAYER PROFILE
+            </button>
+
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<script
+    type="module"
+    src="profile.js"
+></script>
+
+</body>
+
+</html>
