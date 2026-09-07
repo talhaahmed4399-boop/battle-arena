@@ -1698,3 +1698,773 @@ function escapeHtml(
     return div.innerHTML;
 
 }
+/* =========================================
+   CAPTAIN JOIN REQUESTS
+========================================= */
+
+async function loadCaptainRequests() {
+
+    if (
+        !currentTeam ||
+        currentTeam.captainId !==
+        currentUser.uid
+    ) {
+        return;
+    }
+
+
+    const section =
+        document.getElementById(
+            "teamRequestsSection"
+        );
+
+    const list =
+        document.getElementById(
+            "teamRequestsList"
+        );
+
+    const count =
+        document.getElementById(
+            "requestCount"
+        );
+
+
+    if (
+        !section ||
+        !list ||
+        !count
+    ) {
+        return;
+    }
+
+
+    section.classList.remove(
+        "hidden"
+    );
+
+
+    list.innerHTML = `
+        <div class="requests-loading">
+            LOADING JOIN REQUESTS...
+        </div>
+    `;
+
+
+    try {
+
+        const requestQuery =
+            query(
+                collection(
+                    db,
+                    "team_requests"
+                ),
+                where(
+                    "captainId",
+                    "==",
+                    currentUser.uid
+                )
+            );
+
+
+        const snapshot =
+            await getDocs(
+                requestQuery
+            );
+
+
+        const requests =
+            snapshot.docs
+                .map(
+                    requestDoc => ({
+                        id:
+                            requestDoc.id,
+
+                        ...requestDoc.data()
+                    })
+                )
+                .filter(
+                    request =>
+                        request.teamId ===
+                        currentTeam.id
+                        &&
+                        request.status ===
+                        "pending"
+                );
+
+
+        count.textContent =
+            requests.length;
+
+
+        if (
+            !requests.length
+        ) {
+
+            list.innerHTML = `
+                <div class="no-teams">
+                    NO PENDING JOIN REQUESTS.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        list.innerHTML =
+            requests
+                .map(
+                    renderJoinRequest
+                )
+                .join("");
+
+    }
+    catch (error) {
+
+        console.error(
+            "REQUEST LOAD ERROR:",
+            error
+        );
+
+
+        list.innerHTML = `
+            <div class="teams-error">
+                UNABLE TO LOAD JOIN REQUESTS.
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =========================================
+   REQUEST CARD
+========================================= */
+
+function renderJoinRequest(
+    request
+) {
+
+    const initial =
+        String(
+            request.playerName ||
+            "P"
+        )
+        .charAt(0)
+        .toUpperCase();
+
+
+    return `
+
+        <div class="join-request-card">
+
+            <div
+                class="request-player-icon"
+            >
+                ${escapeHtml(initial)}
+            </div>
+
+
+            <div
+                class="request-player-info"
+            >
+
+                <strong>
+                    ${escapeHtml(
+                        request.playerName ||
+                        "Player"
+                    )}
+                </strong>
+
+                <small>
+                    WANTS TO JOIN YOUR TEAM
+                </small>
+
+            </div>
+
+
+            <div
+                class="request-actions"
+            >
+
+                <button
+                    type="button"
+                    class="approve-btn"
+                    data-request-id="${escapeHtml(
+                        request.id
+                    )}"
+                    data-action="approve"
+                >
+                    APPROVE
+                </button>
+
+
+                <button
+                    type="button"
+                    class="reject-btn"
+                    data-request-id="${escapeHtml(
+                        request.id
+                    )}"
+                    data-action="reject"
+                >
+                    REJECT
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================
+   REQUEST BUTTON EVENTS
+========================================= */
+
+const requestsList =
+    document.getElementById(
+        "teamRequestsList"
+    );
+
+
+if (requestsList) {
+
+    requestsList.addEventListener(
+        "click",
+        async function (event) {
+
+            const button =
+                event.target.closest(
+                    "[data-action]"
+                );
+
+
+            if (!button) {
+                return;
+            }
+
+
+            const requestId =
+                button.dataset.requestId;
+
+
+            const action =
+                button.dataset.action;
+
+
+            await handleJoinRequest(
+                requestId,
+                action
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   HANDLE REQUEST
+========================================= */
+
+async function handleJoinRequest(
+    requestId,
+    action
+) {
+
+    if (
+        !currentUser ||
+        !currentTeam
+    ) {
+        return;
+    }
+
+
+    if (
+        currentTeam.captainId !==
+        currentUser.uid
+    ) {
+        return;
+    }
+
+
+    try {
+
+        const requestRef =
+            doc(
+                db,
+                "team_requests",
+                requestId
+            );
+
+
+        const requestSnapshot =
+            await getDoc(
+                requestRef
+            );
+
+
+        if (
+            !requestSnapshot.exists()
+        ) {
+
+            throw new Error(
+                "JOIN REQUEST NOT FOUND."
+            );
+
+        }
+
+
+        const request =
+            requestSnapshot.data();
+
+
+        if (
+            request.status !==
+            "pending"
+        ) {
+
+            throw new Error(
+                "REQUEST ALREADY PROCESSED."
+            );
+
+        }
+
+
+        /* =====================================
+           REJECT
+        ===================================== */
+
+        if (
+            action === "reject"
+        ) {
+
+            await updateDoc(
+                requestRef,
+                {
+                    status:
+                        "rejected"
+                }
+            );
+
+
+            await loadCaptainRequests();
+
+            return;
+
+        }
+
+
+        /* =====================================
+           APPROVE
+        ===================================== */
+
+        const teamRef =
+            doc(
+                db,
+                "teams",
+                currentTeam.id
+            );
+
+
+        const teamSnapshot =
+            await getDoc(
+                teamRef
+            );
+
+
+        if (
+            !teamSnapshot.exists()
+        ) {
+
+            throw new Error(
+                "TEAM NOT FOUND."
+            );
+
+        }
+
+
+        const team =
+            teamSnapshot.data();
+
+
+        const playerCount =
+            Number(
+                team.playerCount || 0
+            );
+
+
+        /* MAXIMUM 8 */
+
+        if (
+            playerCount >= 8
+        ) {
+
+            throw new Error(
+                "TEAM IS FULL. MAXIMUM 8 PLAYERS."
+            );
+
+        }
+
+
+        /* =====================================
+           CHECK PLAYER TEAM MEMBERSHIP
+        ===================================== */
+
+        const membershipQuery =
+            query(
+                collection(
+                    db,
+                    "team_members"
+                ),
+                where(
+                    "playerId",
+                    "==",
+                    request.playerId
+                )
+            );
+
+
+        const membershipSnapshot =
+            await getDocs(
+                membershipQuery
+            );
+
+
+        if (
+            !membershipSnapshot.empty
+        ) {
+
+            throw new Error(
+                "THIS PLAYER IS ALREADY IN A TEAM."
+            );
+
+        }
+
+
+        /* =====================================
+           CREATE MEMBER
+        ===================================== */
+
+        const memberId =
+            `${currentTeam.id}_${request.playerId}`;
+
+
+        await setDoc(
+            doc(
+                db,
+                "team_members",
+                memberId
+            ),
+            {
+
+                teamId:
+                    currentTeam.id,
+
+                playerId:
+                    request.playerId,
+
+                playerName:
+                    request.playerName ||
+                    "Player",
+
+                role:
+                    "player",
+
+                joinedAt:
+                    serverTimestamp()
+
+            }
+        );
+
+
+        /* =====================================
+           UPDATE TEAM COUNT
+        ===================================== */
+
+        const newCount =
+            playerCount + 1;
+
+
+        await updateDoc(
+            teamRef,
+            {
+
+                playerCount:
+                    newCount,
+
+                tournamentEligible:
+                    newCount >= 4
+
+            }
+        );
+
+
+        /* =====================================
+           APPROVE REQUEST
+        ===================================== */
+
+        await updateDoc(
+            requestRef,
+            {
+
+                status:
+                    "approved"
+
+            }
+        );
+
+
+        currentTeam.playerCount =
+            newCount;
+
+
+        currentTeam.tournamentEligible =
+            newCount >= 4;
+
+
+        await showMyTeam();
+
+
+        await loadCaptainRequests();
+
+
+        alert(
+            "PLAYER APPROVED SUCCESSFULLY ✓"
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "REQUEST ACTION ERROR:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "UNABLE TO PROCESS REQUEST."
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   TEAM ROSTER
+========================================= */
+
+async function loadTeamRoster() {
+
+    if (
+        !currentTeam
+    ) {
+        return;
+    }
+
+
+    const roster =
+        document.getElementById(
+            "teamRoster"
+        );
+
+
+    const rosterCount =
+        document.getElementById(
+            "rosterCount"
+        );
+
+
+    if (
+        !roster ||
+        !rosterCount
+    ) {
+        return;
+    }
+
+
+    try {
+
+        const memberQuery =
+            query(
+                collection(
+                    db,
+                    "team_members"
+                ),
+                where(
+                    "teamId",
+                    "==",
+                    currentTeam.id
+                )
+            );
+
+
+        const snapshot =
+            await getDocs(
+                memberQuery
+            );
+
+
+        const members =
+            snapshot.docs
+                .map(
+                    memberDoc => ({
+                        id:
+                            memberDoc.id,
+
+                        ...memberDoc.data()
+                    })
+                );
+
+
+        members.sort(
+            (a, b) => {
+
+                if (
+                    a.role ===
+                    "captain"
+                ) {
+                    return -1;
+                }
+
+
+                if (
+                    b.role ===
+                    "captain"
+                ) {
+                    return 1;
+                }
+
+
+                return 0;
+
+            }
+        );
+
+
+        rosterCount.textContent =
+            members.length;
+
+
+        currentTeam.playerCount =
+            members.length;
+
+
+        currentTeam.tournamentEligible =
+            members.length >= 4;
+
+
+        document.getElementById(
+            "myPlayerCount"
+        ).textContent =
+            members.length;
+
+
+        const eligibility =
+            document.getElementById(
+                "myTeamEligibility"
+            );
+
+
+        if (
+            members.length >= 4
+        ) {
+
+            eligibility.textContent =
+                "TOURNAMENT READY";
+
+            eligibility.className =
+                "status-ready";
+
+        }
+        else {
+
+            eligibility.textContent =
+                "WAITING FOR PLAYERS";
+
+            eligibility.className =
+                "status-pending";
+
+        }
+
+
+        if (
+            !members.length
+        ) {
+
+            roster.innerHTML = `
+                <div class="no-teams">
+                    NO PLAYERS YET.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        roster.innerHTML =
+            members
+                .map(
+                    (member, index) => {
+
+                        return `
+
+                            <div class="roster-player">
+
+                                <div class="roster-number">
+                                    ${String(
+                                        index + 1
+                                    ).padStart(2, "0")}
+                                </div>
+
+
+                                <div class="roster-player-info">
+
+                                    <strong>
+                                        ${escapeHtml(
+                                            member.playerName ||
+                                            "Player"
+                                        )}
+                                    </strong>
+
+                                    <small>
+                                        ${
+                                            member.role ===
+                                            "captain"
+                                                ? "CAPTAIN"
+                                                : "PLAYER"
+                                        }
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    }
+                )
+                .join("");
+
+    }
+    catch (error) {
+
+        console.error(
+            "ROSTER LOAD ERROR:",
+            error
+        );
+
+
+        roster.innerHTML = `
+            <div class="teams-error">
+                UNABLE TO LOAD TEAM ROSTER.
+            </div>
+        ;
+
+    }
+
+}
