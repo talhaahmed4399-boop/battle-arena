@@ -935,7 +935,26 @@ async function showMyTeam() {
         disbandTeamBtn.classList.add(
             "hidden"
         );
+    /* =====================================
+       LOAD TEAM ROSTER
+    ===================================== */
 
+    await loadTeamRoster();
+
+
+    /* =====================================
+       CAPTAIN JOIN REQUESTS
+    ===================================== */
+
+    if (
+        currentTeam.captainId ===
+        currentUser.uid
+    ) {
+
+        await loadCaptainRequests();
+
+    }
+        
     }
 
 }
