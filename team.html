@@ -565,14 +565,50 @@
 
     </section>
 
+    <!-- TEAM ROSTER -->
+    <section class="team-roster-section">
+        <div class="section-header-row">
+            <div>
+                <span>ACTIVE SQUAD</span>
+                <h2>TEAM ROSTER</h2>
+            </div>
+            <strong class="roster-counter">
+                <span id="rosterCount">1</span>/8
+            </strong>
+        </div>
+
+        <div id="teamRoster" class="team-roster">
+            <div class="teams-loading">
+                LOADING TEAM ROSTER...
+            </div>
+        </div>
+    </section>
+
+    <!-- CAPTAIN JOIN REQUESTS -->
+    <section
+        id="teamRequestsSection"
+        class="team-requests-section hidden"
+    >
+        <div class="section-header-row">
+            <div>
+                <span>CAPTAIN CONTROL</span>
+                <h2>JOIN REQUESTS</h2>
+            </div>
+            <strong class="request-counter">
+                <span id="requestCount">0</span>
+            </strong>
+        </div>
+
+        <div id="teamRequestsList" class="team-requests-list">
+            <div class="teams-loading">
+                LOADING JOIN REQUESTS...
+            </div>
+        </div>
+    </section>
+
 
 </main>
-
-
-<script
-    type="module"
-    src="team.js"
-></script>
+    <script type="module" src="team.js"></script>
 
 </body>
 
