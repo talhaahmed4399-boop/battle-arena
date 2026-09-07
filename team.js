@@ -298,6 +298,10 @@ function showTeamCenter() {
         "hidden"
     );
 
+    joinTeamPanel.classList.add(
+        "hidden"
+    );
+
     myTeamPanel.classList.add(
         "hidden"
     );
@@ -382,6 +386,27 @@ joinTeamBtn.addEventListener(
     }
 );
 
+
+closeJoinBtn.addEventListener(
+    "click",
+    () => {
+
+        showTeamCenter();
+
+    }
+);
+
+
+teamSearchInput.addEventListener(
+    "input",
+    () => {
+
+        renderTeamSearch(
+            teamSearchInput.value.trim()
+        );
+
+    }
+);
 /* =========================================
    LOGO PREVIEW
 ========================================= */
@@ -1066,5 +1091,594 @@ function showTeamStatus(
         error
             ? "#ff5364"
             : "#28e7ff";
+
+}
+/* =========================================
+   REGISTERED TEAMS
+========================================= */
+
+let registeredTeamsData = [];
+
+
+async function loadRegisteredTeams() {
+
+    registeredTeams.innerHTML = `
+        <div class="teams-loading">
+            LOADING TEAMS...
+        </div>
+    `;
+
+
+    joinStatus.textContent =
+        "";
+
+
+    try {
+
+        const teamsSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "teams"
+                )
+            );
+
+
+        registeredTeamsData =
+            teamsSnapshot.docs.map(
+                teamDoc => ({
+                    id:
+                        teamDoc.id,
+
+                    ...teamDoc.data()
+                })
+            );
+
+
+        /*
+         * Newest teams first
+         */
+
+        registeredTeamsData.sort(
+            (a, b) => {
+
+                const aTime =
+                    a.createdAt?.seconds || 0;
+
+                const bTime =
+                    b.createdAt?.seconds || 0;
+
+                return bTime - aTime;
+
+            }
+        );
+
+
+        renderTeamSearch("");
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "LOAD TEAMS ERROR:",
+            error
+        );
+
+
+        registeredTeams.innerHTML = `
+            <div class="teams-error">
+                UNABLE TO LOAD REGISTERED TEAMS.
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =========================================
+   SEARCH / RENDER
+========================================= */
+
+function renderTeamSearch(
+    searchValue
+) {
+
+    const search =
+        searchValue
+            .toLowerCase()
+            .trim();
+
+
+    let teams =
+        registeredTeamsData;
+
+
+    if (search) {
+
+        teams =
+            registeredTeamsData.filter(
+                team => {
+
+                    const name =
+                        String(
+                            team.teamName || ""
+                        ).toLowerCase();
+
+
+                    const tag =
+                        String(
+                            team.teamTag || ""
+                        ).toLowerCase();
+
+
+                    return (
+                        name.includes(search) ||
+                        tag.includes(search)
+                    );
+
+                }
+            );
+
+    }
+
+
+    if (!teams.length) {
+
+        registeredTeams.innerHTML = `
+            <div class="no-teams">
+                NO TEAMS FOUND.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    registeredTeams.innerHTML =
+        teams.map(
+            renderTeamCard
+        ).join("");
+
+}
+
+
+/* =========================================
+   TEAM CARD
+========================================= */
+
+function renderTeamCard(
+    team
+) {
+
+    const playerCount =
+        Number(
+            team.playerCount || 0
+        );
+
+
+    const isFull =
+        playerCount >= 8;
+
+
+    const isOwnTeam =
+        currentTeam &&
+        currentTeam.id === team.id;
+
+
+    let buttonText =
+        "REQUEST TO JOIN";
+
+
+    let disabled =
+        false;
+
+
+    let buttonClass =
+        "join-team-btn";
+
+
+    if (isFull) {
+
+        buttonText =
+            "TEAM FULL";
+
+        disabled =
+            true;
+
+    }
+
+
+    if (isOwnTeam) {
+
+        buttonText =
+            "YOUR TEAM";
+
+        disabled =
+            true;
+
+        buttonClass +=
+            " requested";
+
+    }
+
+
+    const logo =
+        team.teamLogo
+            ? `
+                <img
+                    src="${escapeHtml(
+                        team.teamLogo
+                    )}"
+                    alt="${escapeHtml(
+                        team.teamName || "Team"
+                    )} logo"
+                >
+              `
+            : `
+                ${escapeHtml(
+                    String(
+                        team.teamName || "T"
+                    ).charAt(0)
+                )}
+              `;
+
+
+    return `
+
+        <div
+            class="team-list-card"
+        >
+
+            <div
+                class="team-list-logo"
+            >
+                ${logo}
+            </div>
+
+
+            <div
+                class="team-list-info"
+            >
+
+                <small>
+                    REGISTERED TEAM
+                </small>
+
+                <h3>
+                    ${escapeHtml(
+                        team.teamName ||
+                        "Unnamed Team"
+                    )}
+                </h3>
+
+
+                <div
+                    class="team-list-meta"
+                >
+
+                    <span>
+                        TAG:
+                        ${escapeHtml(
+                            team.teamTag ||
+                            "-"
+                        )}
+                    </span>
+
+                    <span>
+                        PLAYERS:
+                        ${playerCount}/8
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                class="${buttonClass}"
+                data-team-id="${escapeHtml(
+                    team.id
+                )}"
+                ${disabled ? "disabled" : ""}
+            >
+                ${buttonText}
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================
+   JOIN REQUEST CLICK
+========================================= */
+
+registeredTeams.addEventListener(
+    "click",
+    async (event) => {
+
+        const button =
+            event.target.closest(
+                ".join-team-btn"
+            );
+
+
+        if (!button) {
+            return;
+        }
+
+
+        const teamId =
+            button.dataset.teamId;
+
+
+        if (!teamId) {
+            return;
+        }
+
+
+        await sendJoinRequest(
+            teamId,
+            button
+        );
+
+    }
+);
+
+
+/* =========================================
+   SEND JOIN REQUEST
+========================================= */
+
+async function sendJoinRequest(
+    teamId,
+    button
+) {
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    try {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "CHECKING...";
+
+
+        /* =====================================
+           CHECK IF PLAYER ALREADY HAS TEAM
+        ===================================== */
+
+        const membershipQuery =
+            query(
+                collection(
+                    db,
+                    "team_members"
+                ),
+                where(
+                    "playerId",
+                    "==",
+                    currentUser.uid
+                )
+            );
+
+
+        const membershipSnapshot =
+            await getDocs(
+                membershipQuery
+            );
+
+
+        if (
+            !membershipSnapshot.empty
+        ) {
+
+            throw new Error(
+                "YOU ARE ALREADY A MEMBER OF A TEAM."
+            );
+
+        }
+
+
+        /* =====================================
+           GET TEAM
+        ===================================== */
+
+        const teamSnapshot =
+            await getDoc(
+                doc(
+                    db,
+                    "teams",
+                    teamId
+                )
+            );
+
+
+        if (
+            !teamSnapshot.exists()
+        ) {
+
+            throw new Error(
+                "TEAM NO LONGER EXISTS."
+            );
+
+        }
+
+
+        const team =
+            teamSnapshot.data();
+
+
+        const playerCount =
+            Number(
+                team.playerCount || 0
+            );
+
+
+        if (
+            playerCount >= 8
+        ) {
+
+            throw new Error(
+                "THIS TEAM IS FULL."
+            );
+
+        }
+
+
+        /* =====================================
+           CHECK EXISTING REQUEST
+        ===================================== */
+
+        const requestQuery =
+            query(
+                collection(
+                    db,
+                    "team_requests"
+                ),
+                where(
+                    "teamId",
+                    "==",
+                    teamId
+                ),
+                where(
+                    "playerId",
+                    "==",
+                    currentUser.uid
+                ),
+                where(
+                    "status",
+                    "==",
+                    "pending"
+                )
+            );
+
+
+        const requestSnapshot =
+            await getDocs(
+                requestQuery
+            );
+
+
+        if (
+            !requestSnapshot.empty
+        ) {
+
+            button.textContent =
+                "REQUESTED";
+
+            button.classList.add(
+                "requested"
+            );
+
+            joinStatus.textContent =
+                "JOIN REQUEST ALREADY SENT.";
+
+            return;
+
+        }
+
+
+        /* =====================================
+           CREATE REQUEST
+        ===================================== */
+
+        await addDoc(
+            collection(
+                db,
+                "team_requests"
+            ),
+            {
+
+                teamId:
+
+                    teamId,
+
+                playerId:
+
+                    currentUser.uid,
+
+                playerName:
+
+                    currentUser.displayName ||
+                    currentUser.email ||
+                    "Player",
+
+                captainId:
+
+                    team.captainId,
+
+                teamName:
+
+                    team.teamName || "",
+
+                status:
+
+                    "pending",
+
+                createdAt:
+
+                    serverTimestamp()
+
+            }
+        );
+
+
+        button.textContent =
+            "REQUESTED";
+
+        button.classList.add(
+            "requested"
+        );
+
+
+        joinStatus.textContent =
+            "JOIN REQUEST SENT SUCCESSFULLY ✓";
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "JOIN REQUEST ERROR:",
+            error
+        );
+
+
+        joinStatus.textContent =
+            error.message ||
+            "UNABLE TO SEND JOIN REQUEST.";
+
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "REQUEST TO JOIN";
+
+    }
+
+}
+function escapeHtml(
+    value
+) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        value ?? "";
+
+    return div.innerHTML;
 
 }
