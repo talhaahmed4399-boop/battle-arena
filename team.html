@@ -1,0 +1,108 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* =========================================
+       PLAYER PROFILES
+    ========================================= */
+
+    match /profiles/{userId} {
+
+      allow read: if request.auth != null
+                  && request.auth.uid == userId;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == userId;
+
+      allow update: if request.auth != null
+                    && request.auth.uid == userId;
+
+      allow delete: if request.auth != null
+                    && request.auth.uid == userId;
+    }
+
+
+    /* =========================================
+       TEAMS
+    ========================================= */
+
+    match /teams/{teamId} {
+
+      // Logged-in users can see registered teams
+      allow read: if request.auth != null;
+
+      // User can create only when they are the captain
+      allow create: if request.auth != null
+                    && request.resource.data.captainId == request.auth.uid;
+
+      // Only captain can edit team
+      allow update: if request.auth != null
+                    && resource.data.captainId == request.auth.uid;
+
+      // Only captain can disband team
+      allow delete: if request.auth != null
+                    && resource.data.captainId == request.auth.uid;
+    }
+
+
+    /* =========================================
+       TEAM MEMBERS
+    ========================================= */
+
+    match /team_members/{memberId} {
+
+      // Logged-in users can view team rosters
+      allow read: if request.auth != null;
+
+      // Player can create their own membership
+      allow create: if request.auth != null
+                    && request.resource.data.playerId == request.auth.uid;
+
+      // Player can leave their own team
+      allow delete: if request.auth != null
+                    && resource.data.playerId == request.auth.uid;
+
+      // No direct client-side editing for now
+      allow update: if false;
+    }
+
+
+    /* =========================================
+       TEAM JOIN REQUESTS
+    ========================================= */
+
+    match /team_requests/{requestId} {
+
+      // Player can see their own requests
+      // Captain can see requests addressed to their team
+      allow read: if request.auth != null
+                  && (
+                    resource.data.playerId == request.auth.uid
+                    ||
+                    resource.data.captainId == request.auth.uid
+                  );
+
+      // Player can submit a request for themselves
+      allow create: if request.auth != null
+                    && request.resource.data.playerId == request.auth.uid;
+
+      // Player/captain can update request
+      allow update: if request.auth != null
+                    && (
+                      resource.data.playerId == request.auth.uid
+                      ||
+                      resource.data.captainId == request.auth.uid
+                    );
+
+      // Player/captain can delete request
+      allow delete: if request.auth != null
+                    && (
+                      resource.data.playerId == request.auth.uid
+                      ||
+                      resource.data.captainId == request.auth.uid
+                    );
+    }
+
+  }
+}
