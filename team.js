@@ -354,15 +354,33 @@ closeCreateBtn.addEventListener(
 
 joinTeamBtn.addEventListener(
     "click",
-    () => {
+    async () => {
 
-        alert(
-            "JOIN TEAM SEARCH IS THE NEXT TEAM SYSTEM PHASE."
+        teamCenter.classList.add(
+            "hidden"
         );
+
+        createTeamPanel.classList.add(
+            "hidden"
+        );
+
+        myTeamPanel.classList.add(
+            "hidden"
+        );
+
+        joinTeamPanel.classList.remove(
+            "hidden"
+        );
+
+        await loadRegisteredTeams();
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
 
     }
 );
-
 
 /* =========================================
    LOGO PREVIEW
