@@ -1592,44 +1592,40 @@ async function sendJoinRequest(
            CREATE REQUEST
         ===================================== */
 
-        await addDoc(
-            collection(
-                db,
-                "team_requests"
-            ),
-            {
+        const requestId =
+    `${teamId}_${currentUser.uid}`;
 
-                teamId:
+await setDoc(
+    doc(
+        db,
+        "team_requests",
+        requestId
+    ),
+    {
+        teamId:
+            teamId,
 
-                    teamId,
+        playerId:
+            currentUser.uid,
 
-                playerId:
+        playerName:
+            currentUser.displayName ||
+            currentUser.email ||
+            "Player",
 
-                    currentUser.uid,
+        captainId:
+            team.captainId,
 
-                playerName:
+        teamName:
+            team.teamName || "",
 
-                    currentUser.displayName ||
-                    currentUser.email ||
-                    "Player",
+        status:
+            "pending",
 
-                captainId:
-
-                    team.captainId,
-
-                teamName:
-
-                    team.teamName || "",
-
-                status:
-
-                    "pending",
-
-                createdAt:
-
-                    serverTimestamp()
-
-            }
+        createdAt:
+            serverTimestamp()
+    }
+);
         );
 
 
