@@ -1029,3 +1029,365 @@ a {
     }
 
 }
+/* =========================================
+   JOIN TEAM
+========================================= */
+
+.join-panel {
+
+    margin-top: 25px;
+
+    padding: 38px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.035),
+            rgba(255,255,255,.012)
+        );
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.35);
+}
+
+
+.team-search {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 22px;
+
+    padding: 0 16px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    background: rgba(0,0,0,.18);
+
+    transition: .2s;
+}
+
+
+.team-search:focus-within {
+
+    border-color: rgba(40,231,255,.6);
+
+    box-shadow:
+        0 0 0 3px rgba(40,231,255,.07);
+}
+
+
+.search-icon {
+
+    color: var(--cyan);
+
+    font-size: 22px;
+
+    line-height: 1;
+}
+
+
+.team-search input {
+
+    width: 100%;
+
+    padding: 16px 0;
+
+    border: 0;
+
+    outline: 0;
+
+    background: transparent;
+
+    color: white;
+
+    font-size: 14px;
+}
+
+
+.team-search input::placeholder {
+
+    color: #66708d;
+}
+
+
+.join-status {
+
+    min-height: 20px;
+
+    margin-bottom: 14px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+/* REGISTERED TEAMS */
+
+.registered-teams {
+
+    display: grid;
+
+    gap: 12px;
+}
+
+
+.team-list-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 16px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 14px;
+
+    background: rgba(255,255,255,.02);
+
+    transition: .2s;
+}
+
+
+.team-list-card:hover {
+
+    transform: translateY(-2px);
+
+    border-color: rgba(40,231,255,.3);
+
+    box-shadow:
+        0 12px 35px rgba(40,231,255,.05);
+}
+
+
+.team-list-logo {
+
+    width: 72px;
+
+    height: 72px;
+
+    flex-shrink: 0;
+
+    overflow: hidden;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 12px;
+
+    border: 1px solid rgba(40,231,255,.25);
+
+    background: #070b19;
+
+    color: var(--cyan);
+
+    font-family: "Barlow Condensed", sans-serif;
+
+    font-size: 28px;
+
+    font-weight: 900;
+}
+
+
+.team-list-logo img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+.team-list-info {
+
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.team-list-info small {
+
+    display: block;
+
+    color: var(--cyan);
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+}
+
+
+.team-list-info h3 {
+
+    margin-top: 3px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-family: "Barlow Condensed", sans-serif;
+
+    font-size: 27px;
+
+    font-weight: 900;
+}
+
+
+.team-list-meta {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 5px;
+}
+
+
+.team-list-meta span {
+
+    padding: 4px 8px;
+
+    border-radius: 5px;
+
+    border: 1px solid var(--border);
+
+    color: var(--muted);
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: .8px;
+}
+
+
+.join-team-btn {
+
+    flex-shrink: 0;
+
+    padding: 11px 15px;
+
+    border: 1px solid rgba(40,231,255,.3);
+
+    border-radius: 7px;
+
+    background: rgba(40,231,255,.05);
+
+    color: var(--cyan);
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    transition: .2s;
+}
+
+
+.join-team-btn:hover {
+
+    background: rgba(40,231,255,.1);
+
+    border-color: var(--cyan);
+}
+
+
+.join-team-btn:disabled {
+
+    opacity: .55;
+
+    cursor: not-allowed;
+}
+
+
+.join-team-btn.requested {
+
+    border-color: rgba(255,211,106,.25);
+
+    background: rgba(255,211,106,.05);
+
+    color: #ffd36a;
+}
+
+
+.teams-loading,
+.no-teams,
+.teams-error {
+
+    padding: 35px 15px;
+
+    text-align: center;
+
+    border: 1px dashed var(--border);
+
+    border-radius: 12px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+}
+
+
+.teams-error {
+
+    color: #ff5364;
+
+    border-color: rgba(255,83,100,.18);
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .join-panel {
+
+        padding: 22px;
+    }
+
+
+    .team-list-card {
+
+        align-items: flex-start;
+
+        flex-wrap: wrap;
+    }
+
+
+    .team-list-info {
+
+        width: calc(100% - 90px);
+    }
+
+
+    .join-team-btn {
+
+        width: 100%;
+    }
+
+}
