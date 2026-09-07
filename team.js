@@ -2446,7 +2446,7 @@ async function loadTeamRoster() {
 
                             </div>
 
-                        `;
+                        ;
 
                     }
                 )
