@@ -1,108 +1,508 @@
-rules_version = '2';
+<!DOCTYPE html>
+<html lang="en">
 
-service cloud.firestore {
-  match /databases/{database}/documents {
+<head>
 
-    /* =========================================
-       PLAYER PROFILES
-    ========================================= */
+    <meta charset="UTF-8">
 
-    match /profiles/{userId} {
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-      allow read: if request.auth != null
-                  && request.auth.uid == userId;
+    <title>Team Center | Battle Arena</title>
 
-      allow create: if request.auth != null
-                    && request.auth.uid == userId;
+    <link
+        rel="stylesheet"
+        href="team.css"
+    >
 
-      allow update: if request.auth != null
-                    && request.auth.uid == userId;
-
-      allow delete: if request.auth != null
-                    && request.auth.uid == userId;
-    }
+</head>
 
 
-    /* =========================================
-       TEAMS
-    ========================================= */
+<body>
 
-    match /teams/{teamId} {
+<header class="team-header">
 
-      // Logged-in users can see registered teams
-      allow read: if request.auth != null;
-
-      // User can create only when they are the captain
-      allow create: if request.auth != null
-                    && request.resource.data.captainId == request.auth.uid;
-
-      // Only captain can edit team
-      allow update: if request.auth != null
-                    && resource.data.captainId == request.auth.uid;
-
-      // Only captain can disband team
-      allow delete: if request.auth != null
-                    && resource.data.captainId == request.auth.uid;
-    }
+    <a
+        href="index.html"
+        class="brand"
+    >
+        BATTLE <span>ARENA</span>
+    </a>
 
 
-    /* =========================================
-       TEAM MEMBERS
-    ========================================= */
+    <a
+        href="index.html"
+        class="back-btn"
+    >
+        ← HOME
+    </a>
 
-    match /team_members/{memberId} {
-
-      // Logged-in users can view team rosters
-      allow read: if request.auth != null;
-
-      // Player can create their own membership
-      allow create: if request.auth != null
-                    && request.resource.data.playerId == request.auth.uid;
-
-      // Player can leave their own team
-      allow delete: if request.auth != null
-                    && resource.data.playerId == request.auth.uid;
-
-      // No direct client-side editing for now
-      allow update: if false;
-    }
+</header>
 
 
-    /* =========================================
-       TEAM JOIN REQUESTS
-    ========================================= */
+<main class="team-wrapper">
 
-    match /team_requests/{requestId} {
 
-      // Player can see their own requests
-      // Captain can see requests addressed to their team
-      allow read: if request.auth != null
-                  && (
-                    resource.data.playerId == request.auth.uid
-                    ||
-                    resource.data.captainId == request.auth.uid
-                  );
+    <!-- TITLE -->
 
-      // Player can submit a request for themselves
-      allow create: if request.auth != null
-                    && request.resource.data.playerId == request.auth.uid;
+    <div class="team-heading">
 
-      // Player/captain can update request
-      allow update: if request.auth != null
-                    && (
-                      resource.data.playerId == request.auth.uid
-                      ||
-                      resource.data.captainId == request.auth.uid
-                    );
+        <span>
+            SQUAD MANAGEMENT
+        </span>
 
-      // Player/captain can delete request
-      allow delete: if request.auth != null
-                    && (
-                      resource.data.playerId == request.auth.uid
-                      ||
-                      resource.data.captainId == request.auth.uid
-                    );
-    }
+        <h1>
+            TEAM CENTER
+        </h1>
 
-  }
-}
+        <p>
+            Build your squad, recruit players and enter
+            competitive battles together.
+        </p>
+
+    </div>
+
+
+    <!-- CENTER -->
+
+    <section
+        id="teamCenter"
+        class="team-center"
+    >
+
+        <div class="team-center-intro">
+
+            <div class="center-icon">
+                ⚔
+            </div>
+
+            <span>
+                BUILD YOUR SQUAD
+            </span>
+
+            <h2>
+                YOUR TEAM. YOUR IDENTITY.
+            </h2>
+
+            <p>
+                Create your own team or join an existing
+                competitive squad.
+            </p>
+
+        </div>
+
+
+        <div class="team-actions">
+
+            <button
+                id="createTeamBtn"
+                class="team-action primary"
+                type="button"
+            >
+
+                <strong>
+                    CREATE TEAM
+                </strong>
+
+                <span>
+                    Build your own squad →
+                </span>
+
+            </button>
+
+
+            <button
+                id="joinTeamBtn"
+                class="team-action secondary"
+                type="button"
+            >
+
+                <strong>
+                    JOIN TEAM
+                </strong>
+
+                <span>
+                    Find an existing squad →
+                </span>
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- CREATE TEAM FORM -->
+
+    <section
+        id="createTeamPanel"
+        class="form-panel hidden"
+    >
+
+        <div class="form-header">
+
+            <div>
+
+                <span>
+                    TEAM REGISTRATION
+                </span>
+
+                <h2>
+                    CREATE YOUR TEAM
+                </h2>
+
+            </div>
+
+
+            <button
+                id="closeCreateBtn"
+                class="close-btn"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="teamForm">
+
+
+            <!-- LOGO -->
+
+            <div class="logo-upload">
+
+                <div
+                    class="logo-preview"
+                    id="logoPreview"
+                >
+
+                    <span id="logoPlaceholder">
+                        +
+                    </span>
+
+                    <img
+                        id="logoImage"
+                        alt="Team Logo"
+                    >
+
+                </div>
+
+
+                <div class="logo-upload-info">
+
+                    <label for="teamLogoInput">
+                        UPLOAD TEAM LOGO
+                    </label>
+
+                    <input
+                        id="teamLogoInput"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                    >
+
+                    <small>
+                        JPG, PNG or WEBP • Max 5MB
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- TEAM INFORMATION -->
+
+            <div class="form-grid">
+
+
+                <div class="field">
+
+                    <label>
+                        TEAM NAME
+                    </label>
+
+                    <input
+                        id="teamName"
+                        type="text"
+                        placeholder="Enter your team name"
+                        maxlength="40"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        TEAM TAG
+                    </label>
+
+                    <input
+                        id="teamTag"
+                        type="text"
+                        placeholder="Example: BA"
+                        maxlength="8"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        CAPTAIN NAME
+                    </label>
+
+                    <input
+                        id="captainName"
+                        type="text"
+                        placeholder="Enter captain name"
+                        maxlength="50"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field">
+
+                    <label>
+                        CAPTAIN WHATSAPP
+                    </label>
+
+                    <input
+                        id="captainWhatsapp"
+                        type="tel"
+                        placeholder="03XXXXXXXXX"
+                        maxlength="20"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field full-width">
+
+                    <label>
+                        TEAM MOTIVE
+                    </label>
+
+                    <textarea
+                        id="teamMotive"
+                        placeholder="What does your team stand for?"
+                        maxlength="200"
+                        required
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- RULES -->
+
+            <div class="team-rules-note">
+
+                <div class="neon-lock">
+                    🔐
+                </div>
+
+                <div>
+
+                    <strong>
+                        YOUR INFORMATION REMAINS PRIVATE
+                    </strong>
+
+                    <p>
+                        Your captain WhatsApp number and
+                        other private information will not
+                        be displayed publicly.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="eligibility-note">
+
+                <strong>
+                    TOURNAMENT ELIGIBILITY
+                </strong>
+
+                <p>
+                    Your team must have at least
+                    <b>4 players</b> to participate in a
+                    tournament. A maximum of
+                    <b>8 players</b> can join your team.
+                </p>
+
+            </div>
+
+
+            <div
+                id="teamStatus"
+                class="team-status"
+            ></div>
+
+
+            <button
+                id="saveTeamBtn"
+                class="save-team-btn"
+                type="submit"
+            >
+                CREATE TEAM
+            </button>
+
+
+        </form>
+
+    </section>
+
+
+    <!-- MY TEAM -->
+
+    <section
+        id="myTeamPanel"
+        class="my-team-panel hidden"
+    >
+
+        <div class="my-team-card">
+
+            <div class="my-team-top">
+
+                <div
+                    id="myTeamLogo"
+                    class="my-team-logo"
+                >
+                    <img
+                        id="myTeamLogoImage"
+                        alt="Team Logo"
+                    >
+                </div>
+
+
+                <div class="my-team-info">
+
+                    <span>
+                        YOUR TEAM
+                    </span>
+
+                    <h2 id="myTeamName">
+                        -
+                    </h2>
+
+                    <div class="team-tag">
+                        <span id="myTeamTag">
+                            -
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="team-motive">
+
+                <span>
+                    TEAM MOTIVE
+                </span>
+
+                <p id="myTeamMotive">
+                    -
+                </p>
+
+            </div>
+
+
+            <div class="team-meta-grid">
+
+                <div>
+
+                    <span>
+                        CAPTAIN
+                    </span>
+
+                    <strong id="myCaptainName">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        PLAYERS
+                    </span>
+
+                    <strong>
+                        <span id="myPlayerCount">
+                            1
+                        </span>
+                        / 8
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        STATUS
+                    </span>
+
+                    <strong
+                        id="myTeamEligibility"
+                        class="status-pending"
+                    >
+                        WAITING FOR PLAYERS
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="team-actions-bottom">
+
+                <button
+                    id="leaveTeamBtn"
+                    class="leave-btn"
+                    type="button"
+                >
+                    LEAVE TEAM
+                </button>
+
+
+                <button
+                    id="disbandTeamBtn"
+                    class="disband-btn hidden"
+                    type="button"
+                >
+                    DISBAND TEAM
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<script
+    type="module"
+    src="team.js"
+></script>
+
+</body>
+
+</html>
