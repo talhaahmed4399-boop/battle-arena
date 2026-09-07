@@ -120,7 +120,30 @@ const leaveTeamBtn =
 const disbandTeamBtn =
     document.getElementById("disbandTeamBtn");
 
+const joinTeamPanel =
+    document.getElementById(
+        "joinTeamPanel"
+    );
 
+const closeJoinBtn =
+    document.getElementById(
+        "closeJoinBtn"
+    );
+
+const teamSearchInput =
+    document.getElementById(
+        "teamSearchInput"
+    );
+
+const registeredTeams =
+    document.getElementById(
+        "registeredTeams"
+    );
+
+const joinStatus =
+    document.getElementById(
+        "joinStatus"
+    );
 /* =========================================
    STATE
 ========================================= */
