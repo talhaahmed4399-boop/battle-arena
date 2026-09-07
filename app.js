@@ -1,493 +1,573 @@
 import {
-initializeApp
+    initializeApp
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 
 import {
-getAuth,
-createUserWithEmailAndPassword,
-signInWithEmailAndPassword,
-sendPasswordResetEmail,
-updateProfile,
-onAuthStateChanged,
-signOut
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    updateProfile,
+    onAuthStateChanged,
+    signOut
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
+import {
+    getFirestore,
+    doc,
+    getDoc
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+
 /* =========================================
-FIREBASE CONFIG
+   FIREBASE CONFIG
 ========================================= */
 
 const firebaseConfig = {
 
+    apiKey:
+        "AIzaSyAX5v1-Fq-ujlFdxI_K-nqOq7RnI_xDFMw",
 
-apiKey:
-    "AIzaSyAX5v1-Fq-ujlFdxI_K-nqOq7RnI_xDFMw",
+    authDomain:
+        "battle-arena-64da6.firebaseapp.com",
 
-authDomain:
-    "battle-arena-64da6.firebaseapp.com",
+    projectId:
+        "battle-arena-64da6",
 
-projectId:
-    "battle-arena-64da6",
+    storageBucket:
+        "battle-arena-64da6.firebasestorage.app",
 
-storageBucket:
-    "battle-arena-64da6.firebasestorage.app",
+    messagingSenderId:
+        "17903384440",
 
-messagingSenderId:
-    "17903384440",
+    appId:
+        "1:17903384440:web:05998e4b7187752891ba8d",
 
-appId:
-    "1:17903384440:web:05998e4b7187752891ba8d",
-
-measurementId:
-    "G-QBP2VD2GGX"
-
+    measurementId:
+        "G-QBP2VD2GGX"
 };
 
+
 /* =========================================
-INITIALIZE FIREBASE
+   INITIALIZE FIREBASE
 ========================================= */
 
 const firebaseApp =
-initializeApp(
-firebaseConfig
-);
+    initializeApp(firebaseConfig);
 
 const auth =
-getAuth(
-firebaseApp
-);
+    getAuth(firebaseApp);
+
+const db =
+    getFirestore(firebaseApp);
+
 
 /* =========================================
-ELEMENTS
+   ELEMENTS
 ========================================= */
 
 const authPage =
-document.getElementById(
-"authPage"
-);
+    document.getElementById("authPage");
 
 const homePage =
-document.getElementById(
-"homePage"
-);
+    document.getElementById("homePage");
 
 const loginTab =
-document.getElementById(
-"loginTab"
-);
+    document.getElementById("loginTab");
 
 const registerTab =
-document.getElementById(
-"registerTab"
-);
+    document.getElementById("registerTab");
 
 const loginForm =
-document.getElementById(
-"loginForm"
-);
+    document.getElementById("loginForm");
 
 const registerForm =
-document.getElementById(
-"registerForm"
-);
+    document.getElementById("registerForm");
 
 const message =
-document.getElementById(
-"message"
-);
+    document.getElementById("message");
 
 const forgotPassword =
-document.getElementById(
-"forgotPassword"
-);
+    document.getElementById("forgotPassword");
 
 const loginButton =
-document.getElementById(
-"loginButton"
-);
+    document.getElementById("loginButton");
 
 const registerButton =
-document.getElementById(
-"registerButton"
-);
+    document.getElementById("registerButton");
 
 const logoutButton =
-document.getElementById(
-"logoutButton"
-);
+    document.getElementById("logoutButton");
 
 const dashboardButton =
-document.getElementById(
-"dashboardButton"
-);
+    document.getElementById("dashboardButton");
+
 
 /* =========================================
-MESSAGE
+   MESSAGE
 ========================================= */
 
 function showMessage(
-text,
-type = ""
+    text,
+    type = ""
 ) {
 
+    if (!message) {
+        return;
+    }
 
-message.textContent =
-    text;
+    message.textContent =
+        text;
 
-message.className =
-    "message";
+    message.className =
+        "message";
 
-if (type) {
+    if (type) {
 
-    message.classList.add(
-        type
-    );
+        message.classList.add(
+            type
+        );
+
+    }
 
 }
 
-}
 
 /* =========================================
-SHOW LOGIN
+   SHOW LOGIN
 ========================================= */
 
 function showLogin() {
 
+    loginTab.classList.add(
+        "active"
+    );
 
-loginTab.classList.add(
-    "active"
-);
+    registerTab.classList.remove(
+        "active"
+    );
 
-registerTab.classList.remove(
-    "active"
-);
+    loginForm.classList.remove(
+        "hidden"
+    );
 
-loginForm.classList.remove(
-    "hidden"
-);
+    registerForm.classList.add(
+        "hidden"
+    );
 
-registerForm.classList.add(
-    "hidden"
-);
-
-showMessage(
-    ""
-);
-
+    showMessage("");
 
 }
 
+
 /* =========================================
-SHOW REGISTER
+   SHOW REGISTER
 ========================================= */
 
 function showRegister() {
 
-
-registerTab.classList.add(
-    "active"
-);
-
-loginTab.classList.remove(
-    "active"
-);
-
-registerForm.classList.remove(
-    "hidden"
-);
-
-loginForm.classList.add(
-    "hidden"
-);
-
-showMessage(
-    ""
-);
-
-
-}
-
-/* =========================================
-LOGIN TAB
-========================================= */
-
-loginTab.addEventListener(
-"click",
-showLogin
-);
-
-/* =========================================
-REGISTER TAB
-========================================= */
-
-registerTab.addEventListener(
-"click",
-showRegister
-);
-
-/* =========================================
-LOGIN
-========================================= */
-
-loginForm.addEventListener(
-"submit",
-async function (event) {
-
-
-    event.preventDefault();
-
-
-    const email =
-        document.getElementById(
-            "loginEmail"
-        ).value.trim();
-
-
-    const password =
-        document.getElementById(
-            "loginPassword"
-        ).value;
-
-
-    loginButton.disabled =
-        true;
-
-
-    showMessage(
-        "LOGGING IN..."
+    registerTab.classList.add(
+        "active"
     );
 
+    loginTab.classList.remove(
+        "active"
+    );
 
-    try {
+    registerForm.classList.remove(
+        "hidden"
+    );
 
-        await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
+    loginForm.classList.add(
+        "hidden"
+    );
 
-
-        showMessage(
-            "LOGIN SUCCESSFUL.",
-            "success"
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "LOGIN ERROR:",
-            error
-        );
-
-        showMessage(
-            getFriendlyError(
-                error
-            ),
-            "error"
-        );
-
-    }
-
-    finally {
-
-        loginButton.disabled =
-            false;
-
-    }
+    showMessage("");
 
 }
 
 
-);
-
 /* =========================================
-REGISTER
+   LOGIN TAB
 ========================================= */
 
-registerForm.addEventListener(
-"submit",
-async function (event) {
+if (loginTab) {
 
-
-    event.preventDefault();
-
-
-    const username =
-        document.getElementById(
-            "registerUsername"
-        ).value.trim();
-
-
-    const email =
-        document.getElementById(
-            "registerEmail"
-        ).value.trim();
-
-
-    const password =
-        document.getElementById(
-            "registerPassword"
-        ).value;
-
-
-    const confirmPassword =
-        document.getElementById(
-            "registerConfirm"
-        ).value;
-
-
-    if (
-        username.length < 3
-    ) {
-
-        showMessage(
-            "USERNAME MUST BE AT LEAST 3 CHARACTERS.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (
-        password !==
-        confirmPassword
-    ) {
-
-        showMessage(
-            "PASSWORDS DO NOT MATCH.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    registerButton.disabled =
-        true;
-
-
-    showMessage(
-        "CREATING ACCOUNT..."
+    loginTab.addEventListener(
+        "click",
+        showLogin
     );
 
+}
 
-    try {
 
-        const userCredential =
-            await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
+/* =========================================
+   REGISTER TAB
+========================================= */
+
+if (registerTab) {
+
+    registerTab.addEventListener(
+        "click",
+        showRegister
+    );
+
+}
+
+
+/* =========================================
+   LOGIN
+========================================= */
+
+if (loginForm) {
+
+    loginForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            const email =
+                document.getElementById(
+                    "loginEmail"
+                ).value.trim();
+
+
+            const password =
+                document.getElementById(
+                    "loginPassword"
+                ).value;
+
+
+            loginButton.disabled =
+                true;
+
+
+            showMessage(
+                "LOGGING IN..."
             );
 
 
-        await updateProfile(
-            userCredential.user,
-            {
-                displayName:
-                    username
+            try {
+
+                await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+
+                showMessage(
+                    "LOGIN SUCCESSFUL.",
+                    "success"
+                );
+
             }
-        );
 
+            catch (error) {
 
-        showMessage(
-            "ACCOUNT CREATED SUCCESSFULLY.",
-            "success"
-        );
+                console.error(
+                    "LOGIN ERROR:",
+                    error
+                );
 
+                showMessage(
+                    getFriendlyError(error),
+                    "error"
+                );
 
-        registerForm.reset();
+            }
 
-    }
+            finally {
 
-    catch (error) {
+                loginButton.disabled =
+                    false;
 
-        console.error(
-            "REGISTER ERROR:",
-            error
-        );
+            }
 
-        showMessage(
-            getFriendlyError(
-                error
-            ),
-            "error"
-        );
-
-    }
-
-    finally {
-
-        registerButton.disabled =
-            false;
-
-    }
+        }
+    );
 
 }
 
 
-);
-
 /* =========================================
-FORGOT PASSWORD
+   REGISTER
 ========================================= */
 
-forgotPassword.addEventListener(
-"click",
-async function () {
+if (registerForm) {
+
+    registerForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
 
 
-    const email =
+            const username =
+                document.getElementById(
+                    "registerUsername"
+                ).value.trim();
+
+
+            const email =
+                document.getElementById(
+                    "registerEmail"
+                ).value.trim();
+
+
+            const password =
+                document.getElementById(
+                    "registerPassword"
+                ).value;
+
+
+            const confirmPassword =
+                document.getElementById(
+                    "registerConfirm"
+                ).value;
+
+
+            if (
+                username.length < 3
+            ) {
+
+                showMessage(
+                    "USERNAME MUST BE AT LEAST 3 CHARACTERS.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            if (
+                password !==
+                confirmPassword
+            ) {
+
+                showMessage(
+                    "PASSWORDS DO NOT MATCH.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            registerButton.disabled =
+                true;
+
+
+            showMessage(
+                "CREATING ACCOUNT..."
+            );
+
+
+            try {
+
+                const userCredential =
+                    await createUserWithEmailAndPassword(
+                        auth,
+                        email,
+                        password
+                    );
+
+
+                await updateProfile(
+                    userCredential.user,
+                    {
+                        displayName:
+                            username
+                    }
+                );
+
+
+                showMessage(
+                    "ACCOUNT CREATED SUCCESSFULLY.",
+                    "success"
+                );
+
+
+                registerForm.reset();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "REGISTER ERROR:",
+                    error
+                );
+
+                showMessage(
+                    getFriendlyError(error),
+                    "error"
+                );
+
+            }
+
+            finally {
+
+                registerButton.disabled =
+                    false;
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   FORGOT PASSWORD
+========================================= */
+
+if (forgotPassword) {
+
+    forgotPassword.addEventListener(
+        "click",
+        async function () {
+
+            const email =
+                document.getElementById(
+                    "loginEmail"
+                ).value.trim();
+
+
+            if (!email) {
+
+                showMessage(
+                    "ENTER YOUR EMAIL FIRST.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            showMessage(
+                "SENDING RESET EMAIL..."
+            );
+
+
+            try {
+
+                await sendPasswordResetEmail(
+                    auth,
+                    email
+                );
+
+
+                showMessage(
+                    "PASSWORD RESET EMAIL SENT.",
+                    "success"
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "RESET PASSWORD ERROR:",
+                    error
+                );
+
+                showMessage(
+                    getFriendlyError(error),
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   PROFILE CHECK
+========================================= */
+
+async function updateHomeProfileButton(
+    user
+) {
+
+    const container =
         document.getElementById(
-            "loginEmail"
-        ).value.trim();
-
-
-    if (!email) {
-
-        showMessage(
-            "ENTER YOUR EMAIL FIRST.",
-            "error"
+            "homeProfileAction"
         );
+
+
+    if (
+        !container ||
+        !user
+    ) {
 
         return;
     }
 
 
-    showMessage(
-        "SENDING RESET EMAIL..."
-    );
-
-
     try {
 
-        await sendPasswordResetEmail(
-            auth,
-            email
-        );
+        const profileRef =
+            doc(
+                db,
+                "profiles",
+                user.uid
+            );
 
 
-        showMessage(
-            "PASSWORD RESET EMAIL SENT.",
-            "success"
-        );
+        const profileSnapshot =
+            await getDoc(
+                profileRef
+            );
+
+
+        if (
+            profileSnapshot.exists()
+        ) {
+
+            container.innerHTML = `
+
+                <a
+                    href="profile.html"
+                    class="home-profile-btn"
+                >
+                    OPEN PROFILE
+                    <span>→</span>
+                </a>
+
+            `;
+
+        }
+
+        else {
+
+            container.innerHTML = `
+
+                <a
+                    href="profile.html"
+                    class="home-profile-btn"
+                >
+                    CREATE PROFILE
+                    <span>→</span>
+                </a>
+
+            `;
+
+        }
 
     }
 
     catch (error) {
 
         console.error(
-            "RESET PASSWORD ERROR:",
+            "PROFILE CHECK ERROR:",
             error
-        );
-
-        showMessage(
-            getFriendlyError(
-                error
-            ),
-            "error"
         );
 
     }
@@ -495,165 +575,176 @@ async function () {
 }
 
 
-);
-
 /* =========================================
-AUTH STATE
+   AUTH STATE
 ========================================= */
 
 onAuthStateChanged(
-auth,
-function (user) {
+    auth,
+    async function (user) {
+
+        if (user) {
+
+            if (authPage) {
+
+                authPage.classList.add(
+                    "hidden"
+                );
+
+            }
 
 
-    if (user) {
+            if (homePage) {
 
-        authPage.classList.add(
-            "hidden"
-        );
+                homePage.classList.remove(
+                    "hidden"
+                );
 
-        homePage.classList.remove(
-            "hidden"
-        );
+            }
 
-    } else {
 
-        authPage.classList.remove(
-            "hidden"
-        );
+            await updateHomeProfileButton(
+                user
+            );
 
-        homePage.classList.add(
-            "hidden"
-        );
+        }
+
+        else {
+
+            if (authPage) {
+
+                authPage.classList.remove(
+                    "hidden"
+                );
+
+            }
+
+
+            if (homePage) {
+
+                homePage.classList.add(
+                    "hidden"
+                );
+
+            }
+
+        }
 
     }
+);
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+        "click",
+        async function () {
+
+            try {
+
+                await signOut(
+                    auth
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "LOGOUT ERROR:",
+                    error
+                );
+
+                showMessage(
+                    "LOGOUT FAILED.",
+                    "error"
+                );
+
+            }
+
+        }
+    );
 
 }
 
 
-);
-
 /* =========================================
-LOGOUT
+   DASHBOARD
 ========================================= */
 
-logoutButton.addEventListener(
-"click",
-async function () {
+if (dashboardButton) {
 
+    dashboardButton.addEventListener(
+        "click",
+        function () {
 
-    try {
+            window.location.href =
+                "dashboard.html";
 
-        await signOut(
-            auth
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "LOGOUT ERROR:",
-            error
-        );
-
-        showMessage(
-            "LOGOUT FAILED.",
-            "error"
-        );
-
-    }
+        }
+    );
 
 }
 
 
-);
-
 /* =========================================
-DASHBOARD
-========================================= */
-
-  dashboardButton.addEventListener(
-    "click",
-    function () {
-
-        window.location.href =
-            "dashboard.html";
-
-    }
-); 
-
-
-/* =========================================
-FRIENDLY FIREBASE ERRORS
+   FRIENDLY FIREBASE ERRORS
 ========================================= */
 
 function getFriendlyError(
-error
+    error
 ) {
 
+    switch (
+        error.code
+    ) {
 
-switch (
-    error.code
-) {
+        case "auth/email-already-in-use":
 
-    case "auth/email-already-in-use":
-
-        return (
-            "THIS EMAIL IS ALREADY REGISTERED."
-        );
+            return "THIS EMAIL IS ALREADY REGISTERED.";
 
 
-    case "auth/invalid-email":
+        case "auth/invalid-email":
 
-        return (
-            "PLEASE ENTER A VALID EMAIL."
-        );
+            return "PLEASE ENTER A VALID EMAIL.";
 
 
-    case "auth/weak-password":
+        case "auth/weak-password":
 
-        return (
-            "PASSWORD IS TOO WEAK."
-        );
+            return "PASSWORD IS TOO WEAK.";
 
 
-    case "auth/invalid-credential":
+        case "auth/invalid-credential":
 
-        return (
-            "INVALID EMAIL OR PASSWORD."
-        );
+            return "INVALID EMAIL OR PASSWORD.";
 
 
-    case "auth/user-not-found":
+        case "auth/user-not-found":
 
-        return (
-            "ACCOUNT NOT FOUND."
-        );
+            return "ACCOUNT NOT FOUND.";
 
 
-    case "auth/wrong-password":
+        case "auth/wrong-password":
 
-        return (
-            "INCORRECT PASSWORD."
-        );
+            return "INCORRECT PASSWORD.";
 
 
-    case "auth/too-many-requests":
+        case "auth/too-many-requests":
 
-        return (
-            "TOO MANY ATTEMPTS. TRY AGAIN LATER."
-        );
+            return "TOO MANY ATTEMPTS. TRY AGAIN LATER.";
 
 
-    default:
+        default:
 
-        return (
-            error.message ||
-            "AN ERROR OCCURRED."
-        );
+            return (
+                error.message ||
+                "AN ERROR OCCURRED."
+            );
 
-}
-
+    }
 
 }
