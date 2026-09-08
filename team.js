@@ -17,8 +17,14 @@ import {
     setDoc,
     updateDoc,
     deleteDoc,
-    serverTimestamp
+    serverTimestamp,
+    writeBatch
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+
+/* =========================================
+   FIREBASE CONFIG
+========================================= */
 
 const firebaseConfig = {
     apiKey: "AIzaSyAX5v1-Fq-ujlFdxI_K-nqOq7RnI_xDFMw",
@@ -30,130 +36,292 @@ const firebaseConfig = {
     measurementId: "G-QBP2VD2GGX"
 };
 
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const CLOUD_NAME = "p6502iog";
-const UPLOAD_PRESET = "battle_arena_profiles";
+
+/* =========================================
+   CLOUDINARY
+========================================= */
+
 const CLOUDINARY_URL =
-    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+    "https://api.cloudinary.com/v1_1/p6502iog/image/upload";
+
+const UPLOAD_PRESET =
+    "battle_arena_profiles";
+
+
+/* =========================================
+   STATE
+========================================= */
 
 let currentUser = null;
 let currentTeam = null;
 let currentMembershipId = null;
 
-function el(id) {
+let registeredTeamsData = [];
+
+
+/* =========================================
+   HELPERS
+========================================= */
+
+function getElement(id) {
     return document.getElementById(id);
 }
 
+
+function escapeHtml(value) {
+
+    const div = document.createElement("div");
+
+    div.textContent = value ?? "";
+
+    return div.innerHTML;
+}
+
+
+function setTeamStatus(message, error = false) {
+
+    const status = getElement("teamStatus");
+
+    if (!status) {
+        return;
+    }
+
+    status.textContent = message;
+
+    status.style.color =
+        error
+            ? "#ff5364"
+            : "#28e7ff";
+}
+
+
+/* =========================================
+   PANEL MANAGEMENT
+========================================= */
+
 function showTeamCenter() {
-    const teamCenter = el("teamCenter");
-    const createTeamPanel = el("createTeamPanel");
-    const joinTeamPanel = el("joinTeamPanel");
-    const myTeamPanel = el("myTeamPanel");
 
-    if (teamCenter) teamCenter.classList.remove("hidden");
-    if (createTeamPanel) createTeamPanel.classList.add("hidden");
-    if (joinTeamPanel) joinTeamPanel.classList.add("hidden");
-    if (myTeamPanel) myTeamPanel.classList.add("hidden");
+    getElement("teamCenter")?.classList.remove("hidden");
+
+    getElement("createTeamPanel")?.classList.add("hidden");
+
+    getElement("joinTeamPanel")?.classList.add("hidden");
+
+    getElement("myTeamPanel")?.classList.add("hidden");
 }
 
-function showCreateTeam() {
-    const teamCenter = el("teamCenter");
-    const createTeamPanel = el("createTeamPanel");
-    const joinTeamPanel = el("joinTeamPanel");
-    const myTeamPanel = el("myTeamPanel");
 
-    if (teamCenter) teamCenter.classList.add("hidden");
-    if (joinTeamPanel) joinTeamPanel.classList.add("hidden");
-    if (myTeamPanel) myTeamPanel.classList.add("hidden");
-    if (createTeamPanel) createTeamPanel.classList.remove("hidden");
+function showCreateTeamPanel() {
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (!currentUser) {
+
+        alert("PLEASE LOGIN FIRST.");
+
+        return;
+    }
+
+    getElement("teamCenter")?.classList.add("hidden");
+
+    getElement("joinTeamPanel")?.classList.add("hidden");
+
+    getElement("myTeamPanel")?.classList.add("hidden");
+
+    getElement("createTeamPanel")?.classList.remove("hidden");
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
-async function showJoinTeam() {
-    const teamCenter = el("teamCenter");
-    const createTeamPanel = el("createTeamPanel");
-    const joinTeamPanel = el("joinTeamPanel");
-    const myTeamPanel = el("myTeamPanel");
 
-    if (teamCenter) teamCenter.classList.add("hidden");
-    if (createTeamPanel) createTeamPanel.classList.add("hidden");
-    if (myTeamPanel) myTeamPanel.classList.add("hidden");
-    if (joinTeamPanel) joinTeamPanel.classList.remove("hidden");
+async function showJoinTeamPanel() {
+
+    if (!currentUser) {
+
+        alert("PLEASE LOGIN FIRST.");
+
+        return;
+    }
+
+    getElement("teamCenter")?.classList.add("hidden");
+
+    getElement("createTeamPanel")?.classList.add("hidden");
+
+    getElement("myTeamPanel")?.classList.add("hidden");
+
+    getElement("joinTeamPanel")?.classList.remove("hidden");
 
     await loadRegisteredTeams();
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
+
+/* =========================================
+   FIND EXISTING TEAM
+========================================= */
+
 async function findExistingTeam() {
+
     try {
-        const snapshot = await getDocs(
-            query(
-                collection(db, "team_members"),
-                where("playerId", "==", currentUser.uid)
+
+        const membershipQuery = query(
+            collection(db, "team_members"),
+            where(
+                "playerId",
+                "==",
+                currentUser.uid
             )
         );
 
-        if (snapshot.empty) {
+        const membershipSnapshot =
+            await getDocs(
+                membershipQuery
+            );
+
+
+        if (membershipSnapshot.empty) {
+
             currentTeam = null;
+
             currentMembershipId = null;
+
             showTeamCenter();
+
             return;
         }
 
-        const memberDoc = snapshot.docs[0];
-        currentMembershipId = memberDoc.id;
 
-        const memberData = memberDoc.data();
+        const membershipDoc =
+            membershipSnapshot.docs[0];
 
-        if (!memberData.teamId) {
+        const membership =
+            membershipDoc.data();
+
+
+        currentMembershipId =
+            membershipDoc.id;
+
+
+        if (!membership.teamId) {
+
             currentTeam = null;
-            currentMembershipId = null;
+
             showTeamCenter();
+
             return;
         }
 
-        const teamSnap = await getDoc(
-            doc(db, "teams", memberData.teamId)
-        );
 
-        if (!teamSnap.exists()) {
+        const teamSnapshot =
+            await getDoc(
+                doc(
+                    db,
+                    "teams",
+                    membership.teamId
+                )
+            );
+
+
+        if (!teamSnapshot.exists()) {
+
             currentTeam = null;
-            currentMembershipId = null;
+
             showTeamCenter();
+
             return;
         }
+
 
         currentTeam = {
-            id: teamSnap.id,
-            ...teamSnap.data()
+
+            id:
+                teamSnapshot.id,
+
+            ...teamSnapshot.data()
+
         };
+
 
         await showMyTeam();
 
-    } catch (error) {
-        console.error("TEAM LOAD ERROR:", error);
+    }
+
+    catch (error) {
+
+        console.error(
+            "TEAM LOAD ERROR:",
+            error
+        );
+
+        currentTeam = null;
+
+        currentMembershipId = null;
+
         showTeamCenter();
     }
 }
 
-async function createTeam(event) {
+
+/* =========================================
+   CREATE TEAM
+========================================= */
+
+async function handleCreateTeam(event) {
+
     event.preventDefault();
 
+
     if (!currentUser) {
-        alert("Please login first.");
+
+        setTeamStatus(
+            "PLEASE LOGIN FIRST.",
+            true
+        );
+
         return;
     }
 
-    const teamName = (el("teamName")?.value || "").trim();
-    const teamTag = (el("teamTag")?.value || "").trim().toUpperCase();
-    const captainName = (el("captainName")?.value || "").trim();
-    const captainWhatsapp = (el("captainWhatsapp")?.value || "").trim();
-    const teamMotive = (el("teamMotive")?.value || "").trim();
+
+    const teamName =
+        getElement("teamName")?.value.trim() ||
+        "";
+
+
+    const teamTag =
+        getElement("teamTag")?.value
+            .trim()
+            .toUpperCase() ||
+        "";
+
+
+    const captainName =
+        getElement("captainName")?.value.trim() ||
+        "";
+
+
+    const captainWhatsapp =
+        getElement("captainWhatsapp")?.value.trim() ||
+        "";
+
+
+    const teamMotive =
+        getElement("teamMotive")?.value.trim() ||
+        "";
+
+
+    const logoFile =
+        getElement("teamLogoInput")?.files?.[0];
+
 
     if (
         !teamName ||
@@ -162,226 +330,641 @@ async function createTeam(event) {
         !captainWhatsapp ||
         !teamMotive
     ) {
-        setTeamStatus("PLEASE COMPLETE ALL TEAM INFORMATION.", true);
+
+        setTeamStatus(
+            "PLEASE COMPLETE ALL TEAM INFORMATION.",
+            true
+        );
+
         return;
     }
 
-    const file = el("teamLogoInput")?.files?.[0];
 
-    if (!file) {
-        setTeamStatus("PLEASE UPLOAD A TEAM LOGO.", true);
+    if (!logoFile) {
+
+        setTeamStatus(
+            "PLEASE UPLOAD A TEAM LOGO.",
+            true
+        );
+
         return;
     }
 
-    const saveButton = el("saveTeamBtn");
+
+    if (
+        !logoFile.type.startsWith("image/")
+    ) {
+
+        setTeamStatus(
+            "PLEASE SELECT A VALID IMAGE FILE.",
+            true
+        );
+
+        return;
+    }
+
+
+    if (
+        logoFile.size >
+        5 * 1024 * 1024
+    ) {
+
+        setTeamStatus(
+            "TEAM LOGO MUST BE UNDER 5MB.",
+            true
+        );
+
+        return;
+    }
+
+
+    const saveButton =
+        getElement("saveTeamBtn");
+
 
     if (saveButton) {
+
         saveButton.disabled = true;
-        saveButton.textContent = "CREATING TEAM...";
+
+        saveButton.textContent =
+            "CREATING TEAM...";
     }
 
-    try {
-        const existingMembership = await getDocs(
-            query(
-                collection(db, "team_members"),
-                where("playerId", "==", currentUser.uid)
-            )
-        );
 
-        if (!existingMembership.empty) {
-            throw new Error("YOU ARE ALREADY A MEMBER OF A TEAM.");
+    try {
+
+        /* CHECK CURRENT TEAM MEMBERSHIP */
+
+        const membershipQuery =
+            query(
+                collection(
+                    db,
+                    "team_members"
+                ),
+                where(
+                    "playerId",
+                    "==",
+                    currentUser.uid
+                )
+            );
+
+
+        const membershipSnapshot =
+            await getDocs(
+                membershipQuery
+            );
+
+
+        if (
+            !membershipSnapshot.empty
+        ) {
+
+            throw new Error(
+                "YOU ARE ALREADY A MEMBER OF A TEAM."
+            );
         }
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", UPLOAD_PRESET);
 
-        const uploadResponse = await fetch(
-            CLOUDINARY_URL,
-            {
-                method: "POST",
-                body: formData
-            }
+        /* CLOUDINARY UPLOAD */
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "file",
+            logoFile
         );
 
-        const uploadResult = await uploadResponse.json();
 
-        if (!uploadResponse.ok) {
+        formData.append(
+            "upload_preset",
+            UPLOAD_PRESET
+        );
+
+
+        const uploadResponse =
+            await fetch(
+                CLOUDINARY_URL,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+
+        const uploadResult =
+            await uploadResponse.json();
+
+
+        if (
+            !uploadResponse.ok
+        ) {
+
             throw new Error(
                 uploadResult?.error?.message ||
                 "TEAM LOGO UPLOAD FAILED."
             );
         }
 
-        const teamReference = await addDoc(
-            collection(db, "teams"),
-            {
-                teamName,
-                teamTag,
-                teamLogo: uploadResult.secure_url,
-                captainId: currentUser.uid,
-                captainName,
-                captainWhatsapp,
-                motive: teamMotive,
-                playerCount: 1,
-                tournamentEligible: false,
-                createdAt: serverTimestamp()
-            }
-        );
 
-        const membershipReference = await addDoc(
-            collection(db, "team_members"),
-            {
-                teamId: teamReference.id,
-                playerId: currentUser.uid,
-                playerName: captainName,
-                role: "captain",
-                joinedAt: serverTimestamp()
-            }
-        );
+        /* CREATE TEAM */
 
-        currentMembershipId = membershipReference.id;
+        const teamReference =
+            await addDoc(
+                collection(
+                    db,
+                    "teams"
+                ),
+                {
+
+                    teamName,
+
+                    teamTag,
+
+                    teamLogo:
+                        uploadResult.secure_url,
+
+                    captainId:
+                        currentUser.uid,
+
+                    captainName,
+
+                    captainWhatsapp,
+
+                    motive:
+                        teamMotive,
+
+                    playerCount:
+                        1,
+
+                    tournamentEligible:
+                        false,
+
+                    createdAt:
+                        serverTimestamp()
+
+                }
+            );
+
+
+        /* CREATE CAPTAIN MEMBERSHIP */
+
+        const memberReference =
+            await addDoc(
+                collection(
+                    db,
+                    "team_members"
+                ),
+                {
+
+                    teamId:
+                        teamReference.id,
+
+                    playerId:
+                        currentUser.uid,
+
+                    playerName:
+                        captainName,
+
+                    role:
+                        "captain",
+
+                    joinedAt:
+                        serverTimestamp()
+
+                }
+            );
+
+
+        currentMembershipId =
+            memberReference.id;
+
 
         currentTeam = {
-            id: teamReference.id,
+
+            id:
+                teamReference.id,
+
             teamName,
+
             teamTag,
-            teamLogo: uploadResult.secure_url,
-            captainId: currentUser.uid,
+
+            teamLogo:
+                uploadResult.secure_url,
+
+            captainId:
+                currentUser.uid,
+
             captainName,
+
             captainWhatsapp,
-            motive: teamMotive,
-            playerCount: 1,
-            tournamentEligible: false
+
+            motive:
+                teamMotive,
+
+            playerCount:
+                1,
+
+            tournamentEligible:
+                false
+
         };
 
-        el("teamForm")?.reset();
 
-        const logoImage = el("logoImage");
-        const logoPlaceholder = el("logoPlaceholder");
+        getElement(
+            "teamForm"
+        )?.reset();
+
+
+        const logoImage =
+            getElement(
+                "logoImage"
+            );
+
+
+        const logoPlaceholder =
+            getElement(
+                "logoPlaceholder"
+            );
+
 
         if (logoImage) {
+
             logoImage.src = "";
-            logoImage.style.display = "none";
+
+            logoImage.style.display =
+                "none";
         }
+
 
         if (logoPlaceholder) {
-            logoPlaceholder.style.display = "block";
+
+            logoPlaceholder.style.display =
+                "block";
         }
 
-        setTeamStatus("TEAM CREATED SUCCESSFULLY ✓", false);
+
+        setTeamStatus(
+            "TEAM CREATED SUCCESSFULLY ✓"
+        );
+
 
         await showMyTeam();
 
-    } catch (error) {
-        console.error("CREATE TEAM ERROR:", error);
+    }
+
+    catch (error) {
+
+        console.error(
+            "CREATE TEAM ERROR:",
+            error
+        );
+
+
         setTeamStatus(
-            error.message || "UNABLE TO CREATE TEAM.",
+            error.message ||
+            "UNABLE TO CREATE TEAM.",
             true
         );
-    } finally {
+    }
+
+
+    finally {
+
         if (saveButton) {
-            saveButton.disabled = false;
-            saveButton.textContent = "CREATE TEAM";
+
+            saveButton.disabled =
+                false;
+
+            saveButton.textContent =
+                "CREATE TEAM";
         }
     }
 }
 
+
+/* =========================================
+   SHOW MY TEAM
+========================================= */
+
 async function showMyTeam() {
-    if (!currentTeam) {
+
+    if (
+        !currentTeam ||
+        !currentUser
+    ) {
+
         showTeamCenter();
+
         return;
     }
 
-    const teamCenter = el("teamCenter");
-    const createTeamPanel = el("createTeamPanel");
-    const joinTeamPanel = el("joinTeamPanel");
-    const myTeamPanel = el("myTeamPanel");
 
-    if (teamCenter) teamCenter.classList.add("hidden");
-    if (createTeamPanel) createTeamPanel.classList.add("hidden");
-    if (joinTeamPanel) joinTeamPanel.classList.add("hidden");
-    if (myTeamPanel) myTeamPanel.classList.remove("hidden");
+    getElement(
+        "teamCenter"
+    )?.classList.add(
+        "hidden"
+    );
 
-    const name = el("myTeamName");
-    const tag = el("myTeamTag");
-    const captain = el("myCaptainName");
-    const motive = el("myTeamMotive");
-    const count = el("myPlayerCount");
-    const logo = el("myTeamLogoImage");
-    const eligibility = el("myTeamEligibility");
-    const leaveBtn = el("leaveTeamBtn");
-    const disbandBtn = el("disbandTeamBtn");
 
-    if (name) name.textContent = currentTeam.teamName || "-";
-    if (tag) tag.textContent = currentTeam.teamTag || "-";
-    if (captain) captain.textContent = currentTeam.captainName || "-";
-    if (motive) motive.textContent = currentTeam.motive || "-";
-    if (count) count.textContent = currentTeam.playerCount || 1;
+    getElement(
+        "createTeamPanel"
+    )?.classList.add(
+        "hidden"
+    );
 
-    if (logo && currentTeam.teamLogo) {
-        logo.src = currentTeam.teamLogo;
+
+    getElement(
+        "joinTeamPanel"
+    )?.classList.add(
+        "hidden"
+    );
+
+
+    getElement(
+        "myTeamPanel"
+    )?.classList.remove(
+        "hidden"
+    );
+
+
+    const name =
+        getElement(
+            "myTeamName"
+        );
+
+
+    const tag =
+        getElement(
+            "myTeamTag"
+        );
+
+
+    const captain =
+        getElement(
+            "myCaptainName"
+        );
+
+
+    const motive =
+        getElement(
+            "myTeamMotive"
+        );
+
+
+    const playerCount =
+        getElement(
+            "myPlayerCount"
+        );
+
+
+    const logo =
+        getElement(
+            "myTeamLogoImage"
+        );
+
+
+    if (name) {
+
+        name.textContent =
+            currentTeam.teamName ||
+            "-";
     }
 
-    if (Number(currentTeam.playerCount || 1) >= 4) {
-        if (eligibility) {
-            eligibility.textContent = "TOURNAMENT READY";
-            eligibility.className = "status-ready";
-        }
-    } else {
-        if (eligibility) {
-            eligibility.textContent = "WAITING FOR PLAYERS";
-            eligibility.className = "status-pending";
-        }
+
+    if (tag) {
+
+        tag.textContent =
+            currentTeam.teamTag ||
+            "-";
     }
+
+
+    if (captain) {
+
+        captain.textContent =
+            currentTeam.captainName ||
+            "-";
+    }
+
+
+    if (motive) {
+
+        motive.textContent =
+            currentTeam.motive ||
+            "-";
+    }
+
+
+    if (playerCount) {
+
+        playerCount.textContent =
+            currentTeam.playerCount ||
+            1;
+    }
+
+
+    if (
+        logo &&
+        currentTeam.teamLogo
+    ) {
+
+        logo.src =
+            currentTeam.teamLogo;
+    }
+
 
     const isCaptain =
-        currentTeam.captainId === currentUser.uid;
+        currentTeam.captainId ===
+        currentUser.uid;
+
 
     if (isCaptain) {
-        if (leaveBtn) leaveBtn.classList.add("hidden");
-        if (disbandBtn) disbandBtn.classList.remove("hidden");
-    } else {
-        if (leaveBtn) leaveBtn.classList.remove("hidden");
-        if (disbandBtn) disbandBtn.classList.add("hidden");
+
+        getElement(
+            "leaveTeamBtn"
+        )?.classList.add(
+            "hidden"
+        );
+
+
+        getElement(
+            "disbandTeamBtn"
+        )?.classList.remove(
+            "hidden"
+        );
+
     }
+
+    else {
+
+        getElement(
+            "leaveTeamBtn"
+        )?.classList.remove(
+            "hidden"
+        );
+
+
+        getElement(
+            "disbandTeamBtn"
+        )?.classList.add(
+            "hidden"
+        );
+
+
+        getElement(
+            "teamRequestsSection"
+        )?.classList.add(
+            "hidden"
+        );
+    }
+
 
     await loadTeamRoster();
 
+
     if (isCaptain) {
+
         await loadCaptainRequests();
     }
 }
 
-async function loadRegisteredTeams() {
-    const container = el("registeredTeams");
 
-    if (!container) return;
+/* =========================================
+   ELIGIBILITY
+========================================= */
 
-    container.innerHTML = `
-        <div class="teams-loading">LOADING TEAMS...</div>
-    `;
+function updateEligibility(
+    count
+) {
 
-    try {
-        const snapshot = await getDocs(
-            collection(db, "teams")
+    const eligibility =
+        getElement(
+            "myTeamEligibility"
         );
 
-        registeredTeamsData = snapshot.docs
-            .map(teamDoc => ({
-                id: teamDoc.id,
-                ...teamDoc.data()
-            }))
-            .sort((a, b) => {
-                const aTime = a.createdAt?.seconds || 0;
-                const bTime = b.createdAt?.seconds || 0;
-                return bTime - aTime;
-            });
 
-        renderTeamSearch("");
+    if (!eligibility) {
+        return;
+    }
 
-    } catch (error) {
-        console.error("LOAD TEAMS ERROR:", error);
+
+    if (
+        Number(count) >= 4
+    ) {
+
+        eligibility.textContent =
+            "TOURNAMENT READY";
+
+
+        eligibility.className =
+            "status-ready";
+
+    }
+
+    else {
+
+        eligibility.textContent =
+            "WAITING FOR PLAYERS";
+
+
+        eligibility.className =
+            "status-pending";
+    }
+}
+
+
+/* =========================================
+   LOAD REGISTERED TEAMS
+========================================= */
+
+async function loadRegisteredTeams() {
+
+    const container =
+        getElement(
+            "registeredTeams"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = `
+        <div class="teams-loading">
+            LOADING TEAMS...
+        </div>
+    `;
+
+
+    const status =
+        getElement(
+            "joinStatus"
+        );
+
+
+    if (status) {
+
+        status.textContent =
+            "";
+    }
+
+
+    try {
+
+        const snapshot =
+            await getDocs(
+                collection(
+                    db,
+                    "teams"
+                )
+            );
+
+
+        registeredTeamsData =
+            snapshot.docs
+                .map(
+                    teamDoc => ({
+
+                        id:
+                            teamDoc.id,
+
+                        ...teamDoc.data()
+
+                    })
+                )
+                .sort(
+                    (a, b) =>
+                        (
+                            b.createdAt?.seconds ||
+                            0
+                        )
+                        -
+                        (
+                            a.createdAt?.seconds ||
+                            0
+                        )
+                );
+
+
+        renderTeamSearch(
+            getElement(
+                "teamSearchInput"
+            )?.value ||
+            ""
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "LOAD TEAMS ERROR:",
+            error
+        );
+
 
         container.innerHTML = `
             <div class="teams-error">
@@ -391,222 +974,462 @@ async function loadRegisteredTeams() {
     }
 }
 
-let registeredTeamsData = [];
 
-function renderTeamSearch(searchValue) {
-    const container = el("registeredTeams");
+/* =========================================
+   SEARCH TEAMS
+========================================= */
 
-    if (!container) return;
+function renderTeamSearch(
+    value = ""
+) {
 
-    const search = String(searchValue || "")
-        .toLowerCase()
-        .trim();
+    const container =
+        getElement(
+            "registeredTeams"
+        );
 
-    let teams = registeredTeamsData;
 
-    if (search) {
-        teams = teams.filter(team => {
-            const name = String(team.teamName || "").toLowerCase();
-            const tag = String(team.teamTag || "").toLowerCase();
-
-            return (
-                name.includes(search) ||
-                tag.includes(search)
-            );
-        });
-    }
-
-    if (!teams.length) {
-        container.innerHTML = `
-            <div class="no-teams">NO TEAMS FOUND.</div>
-        `;
+    if (!container) {
         return;
     }
 
+
+    const search =
+        String(value)
+            .toLowerCase()
+            .trim();
+
+
+    const teams =
+        search
+            ? registeredTeamsData.filter(
+                team => {
+
+                    const name =
+                        String(
+                            team.teamName ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    const tag =
+                        String(
+                            team.teamTag ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    return (
+                        name.includes(search) ||
+                        tag.includes(search)
+                    );
+                }
+            )
+            : registeredTeamsData;
+
+
+    if (!teams.length) {
+
+        container.innerHTML = `
+            <div class="no-teams">
+                NO TEAMS FOUND.
+            </div>
+        `;
+
+        return;
+    }
+
+
     container.innerHTML =
-        teams.map(renderTeamCard).join("");
+        teams
+            .map(
+                renderTeamCard
+            )
+            .join("");
 }
 
-function renderTeamCard(team) {
-    const playerCount = Number(team.playerCount || 0);
-    const full = playerCount >= 8;
-    const ownTeam = currentTeam?.id === team.id;
 
-    let buttonText = "REQUEST TO JOIN";
-    let disabled = false;
+/* =========================================
+   TEAM CARD
+========================================= */
 
-    if (full) {
-        buttonText = "TEAM FULL";
-        disabled = true;
+function renderTeamCard(
+    team
+) {
+
+    const playerCount =
+        Number(
+            team.playerCount ||
+            0
+        );
+
+
+    const isFull =
+        playerCount >= 8;
+
+
+    const isOwnTeam =
+        currentTeam?.id ===
+        team.id;
+
+
+    let buttonText =
+        "REQUEST TO JOIN";
+
+
+    let disabled =
+        false;
+
+
+    if (isFull) {
+
+        buttonText =
+            "TEAM FULL";
+
+        disabled =
+            true;
     }
 
-    if (ownTeam) {
-        buttonText = "YOUR TEAM";
-        disabled = true;
+
+    if (isOwnTeam) {
+
+        buttonText =
+            "YOUR TEAM";
+
+        disabled =
+            true;
     }
 
-    const logo = team.teamLogo
-        ? `<img src="${escapeHtml(team.teamLogo)}" alt="Team Logo">`
-        : `<span>${escapeHtml(
-              String(team.teamName || "T").charAt(0)
-          )}</span>`;
+
+    const logo =
+        team.teamLogo
+
+            ? `
+                <img
+                    src="${escapeHtml(
+                        team.teamLogo
+                    )}"
+                    alt="${escapeHtml(
+                        team.teamName ||
+                        "Team"
+                    )} logo"
+                >
+            `
+
+            : `
+                <span>
+                    ${escapeHtml(
+                        String(
+                            team.teamName ||
+                            "T"
+                        ).charAt(0)
+                    )}
+                </span>
+            `;
+
 
     return `
         <div class="team-list-card">
+
             <div class="team-list-logo">
                 ${logo}
             </div>
 
+
             <div class="team-list-info">
-                <small>REGISTERED TEAM</small>
+
+                <small>
+                    REGISTERED TEAM
+                </small>
+
 
                 <h3>
-                    ${escapeHtml(team.teamName || "Unnamed Team")}
+                    ${escapeHtml(
+                        team.teamName ||
+                        "Unnamed Team"
+                    )}
                 </h3>
 
+
                 <div class="team-list-meta">
+
                     <span>
                         TAG:
-                        ${escapeHtml(team.teamTag || "-")}
+                        ${escapeHtml(
+                            team.teamTag ||
+                            "-"
+                        )}
                     </span>
+
 
                     <span>
                         PLAYERS:
                         ${playerCount}/8
                     </span>
+
                 </div>
+
             </div>
+
 
             <button
                 type="button"
                 class="join-team-btn"
-                data-team-id="${escapeHtml(team.id)}"
+                data-team-id="${escapeHtml(
+                    team.id
+                )}"
                 ${disabled ? "disabled" : ""}
             >
                 ${buttonText}
             </button>
+
         </div>
     `;
 }
 
-async function sendJoinRequest(teamId, button) {
-    if (!currentUser || !teamId || !button) return;
 
-    try {
-        button.disabled = true;
-        button.textContent = "CHECKING...";
+/* =========================================
+   SEND JOIN REQUEST
+========================================= */
 
-        const membershipSnapshot = await getDocs(
-            query(
-                collection(db, "team_members"),
-                where("playerId", "==", currentUser.uid)
-            )
-        );
-
-        if (!membershipSnapshot.empty) {
-            throw new Error("YOU ARE ALREADY A MEMBER OF A TEAM.");
-        }
-
-        const teamSnapshot = await getDoc(
-            doc(db, "teams", teamId)
-        );
-
-        if (!teamSnapshot.exists()) {
-            throw new Error("TEAM NO LONGER EXISTS.");
-        }
-
-        const team = teamSnapshot.data();
-        const playerCount = Number(team.playerCount || 0);
-
-        if (playerCount >= 8) {
-            throw new Error("THIS TEAM IS FULL.");
-        }
-
-        const requestId =
-            `${teamId}_${currentUser.uid}`;
-
-        const requestRef = doc(
-            db,
-            "team_requests",
-            requestId
-        );
-
-        const existingRequest = await getDoc(requestRef);
-
-        if (existingRequest.exists()) {
-            const status = existingRequest.data().status;
-
-            if (status === "pending") {
-                button.textContent = "REQUESTED";
-                button.classList.add("requested");
-
-                const statusEl = el("joinStatus");
-                if (statusEl) {
-                    statusEl.textContent =
-                        "JOIN REQUEST ALREADY SENT.";
-                }
-
-                return;
-            }
-        }
-
-        await setDoc(
-            requestRef,
-            {
-                teamId,
-                playerId: currentUser.uid,
-                playerName:
-                    currentUser.displayName ||
-                    currentUser.email ||
-                    "Player",
-                captainId: team.captainId,
-                teamName: team.teamName || "",
-                status: "pending",
-                createdAt: serverTimestamp()
-            }
-        );
-
-        button.textContent = "REQUESTED";
-        button.classList.add("requested");
-
-        const statusEl = el("joinStatus");
-        if (statusEl) {
-            statusEl.textContent =
-                "JOIN REQUEST SENT SUCCESSFULLY ✓";
-        }
-
-    } catch (error) {
-        console.error("JOIN REQUEST ERROR:", error);
-
-        const statusEl = el("joinStatus");
-        if (statusEl) {
-            statusEl.textContent =
-                error.message ||
-                "UNABLE TO SEND JOIN REQUEST.";
-        }
-
-        button.disabled = false;
-        button.textContent = "REQUEST TO JOIN";
-    }
-}
-
-async function loadCaptainRequests() {
-    const section = el("teamRequestsSection");
-    const list = el("teamRequestsList");
-    const count = el("requestCount");
+async function sendJoinRequest(
+    teamId,
+    button
+) {
 
     if (
-        !currentTeam ||
         !currentUser ||
-        currentTeam.captainId !== currentUser.uid ||
-        !section ||
-        !list ||
-        !count
+        !teamId ||
+        !button
     ) {
         return;
     }
 
-    section.classList.remove("hidden");
+
+    try {
+
+        button.disabled =
+            true;
+
+
+        button.textContent =
+            "CHECKING...";
+
+
+        /* GET TEAM */
+
+        const teamReference =
+            doc(
+                db,
+                "teams",
+                teamId
+            );
+
+
+        const teamSnapshot =
+            await getDoc(
+                teamReference
+            );
+
+
+        if (
+            !teamSnapshot.exists()
+        ) {
+
+            throw new Error(
+                "TEAM NO LONGER EXISTS."
+            );
+        }
+
+
+        const team =
+            teamSnapshot.data();
+
+
+        const playerCount =
+            Number(
+                team.playerCount ||
+                0
+            );
+
+
+        if (
+            playerCount >= 8
+        ) {
+
+            throw new Error(
+                "THIS TEAM IS FULL."
+            );
+        }
+
+
+        /*
+           IMPORTANT:
+           We do not query team_members here.
+           This was the operation that was causing
+           the previous permission problem.
+        */
+
+
+        const requestId =
+            `${teamId}_${currentUser.uid}`;
+
+
+        const requestReference =
+            doc(
+                db,
+                "team_requests",
+                requestId
+            );
+
+
+        /*
+           Directly create the request.
+        */
+
+        await setDoc(
+            requestReference,
+            {
+
+                teamId:
+                    teamId,
+
+                playerId:
+                    currentUser.uid,
+
+                playerName:
+                    currentUser.displayName ||
+                    currentUser.email ||
+                    "Player",
+
+                captainId:
+                    team.captainId,
+
+                teamName:
+                    team.teamName ||
+                    "",
+
+                status:
+                    "pending",
+
+                createdAt:
+                    serverTimestamp()
+
+            }
+        );
+
+
+        button.textContent =
+            "REQUESTED";
+
+
+        button.classList.add(
+            "requested"
+        );
+
+
+        const joinStatus =
+            getElement(
+                "joinStatus"
+            );
+
+
+        if (joinStatus) {
+
+            joinStatus.textContent =
+                "JOIN REQUEST SENT SUCCESSFULLY ✓";
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "JOIN REQUEST ERROR:",
+            error
+        );
+
+
+        const joinStatus =
+            getElement(
+                "joinStatus"
+            );
+
+
+        if (joinStatus) {
+
+            joinStatus.textContent =
+                error.message ||
+                "UNABLE TO SEND JOIN REQUEST.";
+        }
+
+
+        button.disabled =
+            false;
+
+
+        button.textContent =
+            "REQUEST TO JOIN";
+
+
+        button.classList.remove(
+            "requested"
+        );
+    }
+}
+
+
+/* =========================================
+   CAPTAIN REQUESTS
+========================================= */
+
+async function loadCaptainRequests() {
+
+    const section =
+        getElement(
+            "teamRequestsSection"
+        );
+
+
+    const list =
+        getElement(
+            "teamRequestsList"
+        );
+
+
+    const count =
+        getElement(
+            "requestCount"
+        );
+
+
+    if (
+        !section ||
+        !list ||
+        !count ||
+        !currentTeam ||
+        !currentUser
+    ) {
+
+        return;
+    }
+
+
+    if (
+        currentTeam.captainId !==
+        currentUser.uid
+    ) {
+
+        return;
+    }
+
+
+    section.classList.remove(
+        "hidden"
+    );
+
 
     list.innerHTML = `
         <div class="requests-loading">
@@ -614,41 +1437,83 @@ async function loadCaptainRequests() {
         </div>
     `;
 
-    try {
-        const snapshot = await getDocs(
-            query(
-                collection(db, "team_requests"),
-                where("captainId", "==", currentUser.uid)
-            )
-        );
 
-        const requests = snapshot.docs
-            .map(requestDoc => ({
-                id: requestDoc.id,
-                ...requestDoc.data()
-            }))
-            .filter(
-                request =>
-                    request.teamId === currentTeam.id &&
-                    request.status === "pending"
+    try {
+
+        const snapshot =
+            await getDocs(
+                query(
+                    collection(
+                        db,
+                        "team_requests"
+                    ),
+                    where(
+                        "captainId",
+                        "==",
+                        currentUser.uid
+                    )
+                )
             );
 
-        count.textContent = requests.length;
 
-        if (!requests.length) {
+        const requests =
+            snapshot.docs
+
+                .map(
+                    requestDoc => ({
+
+                        id:
+                            requestDoc.id,
+
+                        ...requestDoc.data()
+
+                    })
+                )
+
+                .filter(
+                    request =>
+                        request.teamId ===
+                            currentTeam.id
+                        &&
+                        request.status ===
+                            "pending"
+                );
+
+
+        count.textContent =
+            requests.length;
+
+
+        if (
+            !requests.length
+        ) {
+
             list.innerHTML = `
                 <div class="no-teams">
                     NO PENDING JOIN REQUESTS.
                 </div>
             `;
+
             return;
         }
 
-        list.innerHTML =
-            requests.map(renderJoinRequest).join("");
 
-    } catch (error) {
-        console.error("REQUEST LOAD ERROR:", error);
+        list.innerHTML =
+            requests
+                .map(
+                    renderJoinRequest
+                )
+                .join("");
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "REQUEST LOAD ERROR:",
+            error
+        );
+
 
         list.innerHTML = `
             <div class="teams-error">
@@ -658,120 +1523,259 @@ async function loadCaptainRequests() {
     }
 }
 
-function renderJoinRequest(request) {
-    const initial = String(
-        request.playerName || "P"
-    )
+
+/* =========================================
+   REQUEST CARD
+========================================= */
+
+function renderJoinRequest(
+    request
+) {
+
+    const initial =
+        String(
+            request.playerName ||
+            "P"
+        )
         .charAt(0)
         .toUpperCase();
 
+
     return `
         <div class="join-request-card">
+
             <div class="request-player-icon">
                 ${escapeHtml(initial)}
             </div>
 
+
             <div class="request-player-info">
+
                 <strong>
                     ${escapeHtml(
-                        request.playerName || "Player"
+                        request.playerName ||
+                        "Player"
                     )}
                 </strong>
+
 
                 <small>
                     WANTS TO JOIN YOUR TEAM
                 </small>
+
             </div>
 
+
             <div class="request-actions">
+
                 <button
                     type="button"
                     class="approve-btn"
                     data-action="approve"
-                    data-request-id="${escapeHtml(request.id)}"
+                    data-request-id="${escapeHtml(
+                        request.id
+                    )}"
                 >
                     APPROVE
                 </button>
+
 
                 <button
                     type="button"
                     class="reject-btn"
                     data-action="reject"
-                    data-request-id="${escapeHtml(request.id)}"
+                    data-request-id="${escapeHtml(
+                        request.id
+                    )}"
                 >
                     REJECT
                 </button>
+
             </div>
+
         </div>
     `;
 }
 
-async function handleJoinRequest(requestId, action) {
+
+/* =========================================
+   PROCESS REQUEST
+========================================= */
+
+async function processJoinRequest(
+    requestId,
+    action
+) {
+
     if (
         !currentUser ||
-        !currentTeam ||
-        currentTeam.captainId !== currentUser.uid
+        !currentTeam
     ) {
         return;
     }
 
+
+    if (
+        currentTeam.captainId !==
+        currentUser.uid
+    ) {
+        return;
+    }
+
+
     try {
-        const requestRef = doc(
-            db,
-            "team_requests",
-            requestId
-        );
 
-        const requestSnapshot =
-            await getDoc(requestRef);
-
-        if (!requestSnapshot.exists()) {
-            throw new Error("JOIN REQUEST NOT FOUND.");
-        }
-
-        const request = requestSnapshot.data();
-
-        if (request.status !== "pending") {
-            throw new Error("REQUEST ALREADY PROCESSED.");
-        }
-
-        if (action === "reject") {
-            await updateDoc(
-                requestRef,
-                { status: "rejected" }
+        const requestReference =
+            doc(
+                db,
+                "team_requests",
+                requestId
             );
 
+
+        const requestSnapshot =
+            await getDoc(
+                requestReference
+            );
+
+
+        if (
+            !requestSnapshot.exists()
+        ) {
+
+            throw new Error(
+                "JOIN REQUEST NOT FOUND."
+            );
+        }
+
+
+        const request =
+            requestSnapshot.data();
+
+
+        if (
+            request.captainId !==
+            currentUser.uid
+        ) {
+
+            throw new Error(
+                "YOU ARE NOT ALLOWED TO PROCESS THIS REQUEST."
+            );
+        }
+
+
+        if (
+            request.teamId !==
+            currentTeam.id
+        ) {
+
+            throw new Error(
+                "INVALID TEAM REQUEST."
+            );
+        }
+
+
+        if (
+            request.status !==
+            "pending"
+        ) {
+
+            throw new Error(
+                "REQUEST ALREADY PROCESSED."
+            );
+        }
+
+
+        /* REJECT */
+
+        if (
+            action ===
+            "reject"
+        ) {
+
+            await updateDoc(
+                requestReference,
+                {
+                    status:
+                        "rejected"
+                }
+            );
+
+
             await loadCaptainRequests();
+
             return;
         }
 
-        const teamRef = doc(
-            db,
-            "teams",
-            currentTeam.id
-        );
 
-        const teamSnapshot =
-            await getDoc(teamRef);
+        if (
+            action !==
+            "approve"
+        ) {
 
-        if (!teamSnapshot.exists()) {
-            throw new Error("TEAM NOT FOUND.");
+            return;
         }
 
-        const team = teamSnapshot.data();
-        const playerCount =
-            Number(team.playerCount || 0);
 
-        if (playerCount >= 8) {
+        /* APPROVE */
+
+        const teamReference =
+            doc(
+                db,
+                "teams",
+                currentTeam.id
+            );
+
+
+        const teamSnapshot =
+            await getDoc(
+                teamReference
+            );
+
+
+        if (
+            !teamSnapshot.exists()
+        ) {
+
+            throw new Error(
+                "TEAM NOT FOUND."
+            );
+        }
+
+
+        const team =
+            teamSnapshot.data();
+
+
+        const playerCount =
+            Number(
+                team.playerCount ||
+                0
+            );
+
+
+        if (
+            playerCount >= 8
+        ) {
+
             throw new Error(
                 "TEAM IS FULL. MAXIMUM 8 PLAYERS."
             );
         }
 
+
+        /*
+           Check whether requested player
+           already belongs to any team.
+        */
+
         const membershipSnapshot =
             await getDocs(
                 query(
-                    collection(db, "team_members"),
+                    collection(
+                        db,
+                        "team_members"
+                    ),
                     where(
                         "playerId",
                         "==",
@@ -780,14 +1784,20 @@ async function handleJoinRequest(requestId, action) {
                 )
             );
 
-        if (!membershipSnapshot.empty) {
+
+        if (
+            !membershipSnapshot.empty
+        ) {
+
             throw new Error(
                 "THIS PLAYER IS ALREADY IN A TEAM."
             );
         }
 
+
         const memberId =
             `${currentTeam.id}_${request.playerId}`;
+
 
         await setDoc(
             doc(
@@ -796,47 +1806,80 @@ async function handleJoinRequest(requestId, action) {
                 memberId
             ),
             {
-                teamId: currentTeam.id,
-                playerId: request.playerId,
+
+                teamId:
+                    currentTeam.id,
+
+                playerId:
+                    request.playerId,
+
                 playerName:
-                    request.playerName || "Player",
-                role: "player",
-                joinedAt: serverTimestamp()
+                    request.playerName ||
+                    "Player",
+
+                role:
+                    "player",
+
+                joinedAt:
+                    serverTimestamp()
+
             }
         );
+
 
         const newCount =
             playerCount + 1;
 
+
         await updateDoc(
-            teamRef,
+            teamReference,
             {
-                playerCount: newCount,
-                tournamentEligible: newCount >= 4
+
+                playerCount:
+                    newCount,
+
+                tournamentEligible:
+                    newCount >= 4
+
             }
         );
 
+
         await updateDoc(
-            requestRef,
+            requestReference,
             {
-                status: "approved"
+
+                status:
+                    "approved"
+
             }
         );
 
-        currentTeam.playerCount = newCount;
+
+        currentTeam.playerCount =
+            newCount;
+
+
         currentTeam.tournamentEligible =
             newCount >= 4;
 
+
         await showMyTeam();
-        await loadCaptainRequests();
 
-        alert("PLAYER APPROVED SUCCESSFULLY ✓");
 
-    } catch (error) {
+        alert(
+            "PLAYER APPROVED SUCCESSFULLY ✓"
+        );
+
+    }
+
+    catch (error) {
+
         console.error(
             "REQUEST ACTION ERROR:",
             error
         );
+
 
         alert(
             error.message ||
@@ -845,108 +1888,196 @@ async function handleJoinRequest(requestId, action) {
     }
 }
 
+
+/* =========================================
+   TEAM ROSTER
+========================================= */
+
 async function loadTeamRoster() {
-    if (!currentTeam) return;
 
-    const roster = el("teamRoster");
-    const rosterCount = el("rosterCount");
-
-    if (!roster || !rosterCount) return;
-
-    try {
-        const snapshot = await getDocs(
-            query(
-                collection(db, "team_members"),
-                where(
-                    "teamId",
-                    "==",
-                    currentTeam.id
-                )
-            )
+    const roster =
+        getElement(
+            "teamRoster"
         );
 
-        const members = snapshot.docs
-            .map(memberDoc => ({
-                id: memberDoc.id,
-                ...memberDoc.data()
-            }))
-            .sort((a, b) => {
-                if (a.role === "captain") return -1;
-                if (b.role === "captain") return 1;
-                return 0;
-            });
 
-        rosterCount.textContent =
-            members.length;
+    const rosterCount =
+        getElement(
+            "rosterCount"
+        );
+
+
+    if (
+        !currentTeam ||
+        !roster ||
+        !rosterCount
+    ) {
+
+        return;
+    }
+
+
+    try {
+
+        const snapshot =
+            await getDocs(
+                query(
+                    collection(
+                        db,
+                        "team_members"
+                    ),
+                    where(
+                        "teamId",
+                        "==",
+                        currentTeam.id
+                    )
+                )
+            );
+
+
+        const members =
+            snapshot.docs
+
+                .map(
+                    memberDoc => ({
+
+                        id:
+                            memberDoc.id,
+
+                        ...memberDoc.data()
+
+                    })
+                )
+
+                .sort(
+                    (a, b) => {
+
+                        if (
+                            a.role ===
+                            "captain"
+                        ) {
+
+                            return -1;
+                        }
+
+
+                        if (
+                            b.role ===
+                            "captain"
+                        ) {
+
+                            return 1;
+                        }
+
+
+                        return 0;
+                    }
+                );
+
 
         currentTeam.playerCount =
             members.length;
 
+
         currentTeam.tournamentEligible =
             members.length >= 4;
 
-        const myCount = el("myPlayerCount");
-        if (myCount) {
-            myCount.textContent =
+
+        rosterCount.textContent =
+            members.length;
+
+
+        if (
+            getElement(
+                "myPlayerCount"
+            )
+        ) {
+
+            getElement(
+                "myPlayerCount"
+            ).textContent =
                 members.length;
         }
 
-        const eligibility =
-            el("myTeamEligibility");
 
-        if (eligibility) {
-            if (members.length >= 4) {
-                eligibility.textContent =
-                    "TOURNAMENT READY";
-                eligibility.className =
-                    "status-ready";
-            } else {
-                eligibility.textContent =
-                    "WAITING FOR PLAYERS";
-                eligibility.className =
-                    "status-pending";
-            }
-        }
+        updateEligibility(
+            members.length
+        );
 
-        if (!members.length) {
+
+        if (
+            !members.length
+        ) {
+
             roster.innerHTML = `
                 <div class="no-teams">
                     NO PLAYERS YET.
                 </div>
             `;
+
             return;
         }
 
+
         roster.innerHTML =
-            members.map((member, index) => `
-                <div class="roster-player">
-                    <div class="roster-number">
-                        ${String(index + 1).padStart(2, "0")}
-                    </div>
+            members
+                .map(
+                    (
+                        member,
+                        index
+                    ) => {
 
-                    <div class="roster-player-info">
-                        <strong>
-                            ${escapeHtml(
-                                member.playerName || "Player"
-                            )}
-                        </strong>
+                        return `
+                            <div class="roster-player">
 
-                        <small>
-                            ${
-                                member.role === "captain"
-                                    ? "CAPTAIN"
-                                    : "PLAYER"
-                            }
-                        </small>
-                    </div>
-                </div>
-            `).join("");
+                                <div class="roster-number">
+                                    ${String(
+                                        index + 1
+                                    ).padStart(
+                                        2,
+                                        "0"
+                                    )}
+                                </div>
 
-    } catch (error) {
+
+                                <div class="roster-player-info">
+
+                                    <strong>
+                                        ${escapeHtml(
+                                            member.playerName ||
+                                            "Player"
+                                        )}
+                                    </strong>
+
+
+                                    <small>
+                                        ${
+                                            member.role ===
+                                            "captain"
+
+                                                ? "CAPTAIN"
+
+                                                : "PLAYER"
+                                        }
+                                    </small>
+
+                                </div>
+
+                            </div>
+                        `;
+                    }
+                )
+                .join("");
+
+    }
+
+    catch (error) {
+
         console.error(
             "ROSTER LOAD ERROR:",
             error
         );
+
 
         roster.innerHTML = `
             <div class="teams-error">
@@ -956,20 +2087,49 @@ async function loadTeamRoster() {
     }
 }
 
-async function leaveTeam() {
-    if (!currentMembershipId || !currentTeam) {
-        return;
-    }
+
+/* =========================================
+   LEAVE TEAM
+========================================= */
+
+async function leaveCurrentTeam() {
 
     if (
-        !confirm(
-            "Are you sure you want to leave this team?"
-        )
+        !currentUser ||
+        !currentTeam ||
+        !currentMembershipId
     ) {
+
         return;
     }
 
+
+    if (
+        currentTeam.captainId ===
+        currentUser.uid
+    ) {
+
+        alert(
+            "CAPTAIN CANNOT LEAVE. USE DISBAND TEAM."
+        );
+
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to leave this team?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
     try {
+
         await deleteDoc(
             doc(
                 db,
@@ -978,27 +2138,65 @@ async function leaveTeam() {
             )
         );
 
-        const newCount =
-            Math.max(
-                1,
-                Number(currentTeam.playerCount || 1) - 1
+
+        const teamReference =
+            doc(
+                db,
+                "teams",
+                currentTeam.id
             );
 
-        await updateDoc(
-            doc(db, "teams", currentTeam.id),
-            {
-                playerCount: newCount,
-                tournamentEligible: newCount >= 4
-            }
-        );
+
+        const teamSnapshot =
+            await getDoc(
+                teamReference
+            );
+
+
+        if (
+            teamSnapshot.exists()
+        ) {
+
+            const team =
+                teamSnapshot.data();
+
+
+            const newCount =
+                Math.max(
+                    1,
+                    Number(
+                        team.playerCount ||
+                        1
+                    ) - 1
+                );
+
+
+            await updateDoc(
+                teamReference,
+                {
+
+                    playerCount:
+                        newCount,
+
+                    tournamentEligible:
+                        newCount >= 4
+
+                }
+            );
+        }
+
 
         window.location.reload();
 
-    } catch (error) {
+    }
+
+    catch (error) {
+
         console.error(
             "LEAVE TEAM ERROR:",
             error
         );
+
 
         alert(
             error.message ||
@@ -1007,55 +2205,127 @@ async function leaveTeam() {
     }
 }
 
-async function disbandTeam() {
-    if (!currentTeam?.id) return;
+
+/* =========================================
+   DISBAND TEAM
+========================================= */
+
+async function disbandCurrentTeam() {
 
     if (
-        !confirm(
-            "Disband this team? This cannot be undone."
-        )
+        !currentUser ||
+        !currentTeam
     ) {
+
         return;
     }
 
+
+    if (
+        currentTeam.captainId !==
+        currentUser.uid
+    ) {
+
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            "Disband this team? This cannot be undone."
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
     try {
-        const teamId = currentTeam.id;
+
+        const teamId =
+            currentTeam.id;
+
 
         const membersSnapshot =
             await getDocs(
                 query(
-                    collection(db, "team_members"),
-                    where("teamId", "==", teamId)
+                    collection(
+                        db,
+                        "team_members"
+                    ),
+                    where(
+                        "teamId",
+                        "==",
+                        teamId
+                    )
                 )
             );
 
-        for (const member of membersSnapshot.docs) {
-            await deleteDoc(member.ref);
-        }
 
         const requestsSnapshot =
             await getDocs(
                 query(
-                    collection(db, "team_requests"),
-                    where("teamId", "==", teamId)
+                    collection(
+                        db,
+                        "team_requests"
+                    ),
+                    where(
+                        "teamId",
+                        "==",
+                        teamId
+                    )
                 )
             );
 
-        for (const request of requestsSnapshot.docs) {
-            await deleteDoc(request.ref);
-        }
 
-        await deleteDoc(
-            doc(db, "teams", teamId)
+        const batch =
+            writeBatch(db);
+
+
+        membersSnapshot.docs.forEach(
+            memberDoc => {
+
+                batch.delete(
+                    memberDoc.ref
+                );
+            }
         );
+
+
+        requestsSnapshot.docs.forEach(
+            requestDoc => {
+
+                batch.delete(
+                    requestDoc.ref
+                );
+            }
+        );
+
+
+        batch.delete(
+            doc(
+                db,
+                "teams",
+                teamId
+            )
+        );
+
+
+        await batch.commit();
+
 
         window.location.reload();
 
-    } catch (error) {
+    }
+
+    catch (error) {
+
         console.error(
             "DISBAND TEAM ERROR:",
             error
         );
+
 
         alert(
             error.message ||
@@ -1064,139 +2334,223 @@ async function disbandTeam() {
     }
 }
 
-function setupLogoPreview() {
-    const input = el("teamLogoInput");
-    const image = el("logoImage");
-    const placeholder = el("logoPlaceholder");
 
-    if (!input) return;
+/* =========================================
+   LOGO PREVIEW
+========================================= */
+
+function setupLogoPreview() {
+
+    const input =
+        getElement(
+            "teamLogoInput"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
 
     input.addEventListener(
         "change",
         () => {
-            const file = input.files?.[0];
 
-            if (!file) return;
+            const file =
+                input.files?.[0];
 
-            if (!file.type.startsWith("image/")) {
+
+            if (!file) {
+                return;
+            }
+
+
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+
                 setTeamStatus(
                     "PLEASE SELECT AN IMAGE FILE.",
                     true
                 );
 
-                input.value = "";
+
+                input.value =
+                    "";
+
                 return;
             }
 
-            if (file.size > 5 * 1024 * 1024) {
+
+            if (
+                file.size >
+                5 * 1024 * 1024
+            ) {
+
                 setTeamStatus(
                     "TEAM LOGO MUST BE UNDER 5MB.",
                     true
                 );
 
-                input.value = "";
+
+                input.value =
+                    "";
+
                 return;
             }
 
-            const reader = new FileReader();
 
-            reader.onload = () => {
-                if (image) {
-                    image.src = reader.result;
-                    image.style.display = "block";
-                }
+            const reader =
+                new FileReader();
 
-                if (placeholder) {
-                    placeholder.style.display = "none";
-                }
-            };
 
-            reader.readAsDataURL(file);
+            reader.onload =
+                () => {
+
+                    const image =
+                        getElement(
+                            "logoImage"
+                        );
+
+
+                    const placeholder =
+                        getElement(
+                            "logoPlaceholder"
+                        );
+
+
+                    if (image) {
+
+                        image.src =
+                            reader.result;
+
+                        image.style.display =
+                            "block";
+                    }
+
+
+                    if (placeholder) {
+
+                        placeholder.style.display =
+                            "none";
+                    }
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
         }
     );
 }
 
-function setTeamStatus(message, error = false) {
-    const status = el("teamStatus");
 
-    if (!status) return;
-
-    status.textContent = message;
-    status.style.color =
-        error ? "#ff5364" : "#28e7ff";
-}
+/* =========================================
+   EVENT LISTENERS
+========================================= */
 
 function setupEvents() {
-    const createButton = el("createTeamBtn");
-    const joinButton = el("joinTeamBtn");
-    const closeCreate = el("closeCreateBtn");
-    const closeJoin = el("closeJoinBtn");
-    const form = el("teamForm");
-    const leaveButton = el("leaveTeamBtn");
-    const disbandButton = el("disbandTeamBtn");
-    const searchInput = el("teamSearchInput");
-    const registeredTeams = el("registeredTeams");
-    const requestsList = el("teamRequestsList");
 
-    createButton?.addEventListener(
+    getElement(
+        "createTeamBtn"
+    )?.addEventListener(
         "click",
-        showCreateTeam
+        showCreateTeamPanel
     );
 
-    joinButton?.addEventListener(
+
+    getElement(
+        "joinTeamBtn"
+    )?.addEventListener(
         "click",
-        showJoinTeam
+        showJoinTeamPanel
     );
 
-    closeCreate?.addEventListener(
+
+    getElement(
+        "closeCreateBtn"
+    )?.addEventListener(
         "click",
         showTeamCenter
     );
 
-    closeJoin?.addEventListener(
+
+    getElement(
+        "closeJoinBtn"
+    )?.addEventListener(
         "click",
         showTeamCenter
     );
 
-    form?.addEventListener(
+
+    getElement(
+        "teamForm"
+    )?.addEventListener(
         "submit",
-        createTeam
+        handleCreateTeam
     );
 
-    leaveButton?.addEventListener(
+
+    getElement(
+        "leaveTeamBtn"
+    )?.addEventListener(
         "click",
-        leaveTeam
+        leaveCurrentTeam
     );
 
-    disbandButton?.addEventListener(
+
+    getElement(
+        "disbandTeamBtn"
+    )?.addEventListener(
         "click",
-        disbandTeam
+        disbandCurrentTeam
     );
 
-    searchInput?.addEventListener(
+
+    getElement(
+        "teamSearchInput"
+    )?.addEventListener(
         "input",
         event => {
+
             renderTeamSearch(
                 event.target.value
             );
         }
     );
 
-    registeredTeams?.addEventListener(
+
+    getElement(
+        "registeredTeams"
+    )?.addEventListener(
         "click",
         async event => {
+
             const button =
                 event.target.closest(
                     ".join-team-btn"
                 );
 
-            if (!button) return;
-            if (button.disabled) return;
+
+            if (
+                !button ||
+                button.disabled
+            ) {
+
+                return;
+            }
+
 
             const teamId =
                 button.dataset.teamId;
 
-            if (!teamId) return;
+
+            if (!teamId) {
+                return;
+            }
+
 
             await sendJoinRequest(
                 teamId,
@@ -1205,25 +2559,42 @@ function setupEvents() {
         }
     );
 
-    requestsList?.addEventListener(
+
+    getElement(
+        "teamRequestsList"
+    )?.addEventListener(
         "click",
         async event => {
+
             const button =
                 event.target.closest(
                     "[data-action]"
                 );
 
-            if (!button) return;
+
+            if (!button) {
+                return;
+            }
+
 
             const requestId =
                 button.dataset.requestId;
 
+
             const action =
                 button.dataset.action;
 
-            if (!requestId || !action) return;
 
-            await handleJoinRequest(
+            if (
+                !requestId ||
+                !action
+            ) {
+
+                return;
+            }
+
+
+            await processJoinRequest(
                 requestId,
                 action
             );
@@ -1231,60 +2602,57 @@ function setupEvents() {
     );
 }
 
-function validateCriticalElements() {
-    const required = [
-        "teamCenter",
-        "createTeamPanel",
-        "createTeamBtn",
-        "joinTeamBtn",
-        "joinTeamPanel",
-        "teamForm"
-    ];
 
-    const missing = required.filter(
-        id => !el(id)
-    );
+/* =========================================
+   INITIALIZATION
+========================================= */
 
-    if (missing.length) {
-        console.warn(
-            "TEAM HTML ELEMENTS MISSING:",
-            missing
-        );
-    }
-}
+function initializeTeamPage() {
 
-function escapeHtml(value) {
-    const div = document.createElement("div");
-    div.textContent = value ?? "";
-    return div.innerHTML;
-}
-
-function initTeamPage() {
-    validateCriticalElements();
     setupEvents();
+
     setupLogoPreview();
+
 
     onAuthStateChanged(
         auth,
         async user => {
+
             if (!user) {
-                window.location.href = "index.html";
+
+                window.location.href =
+                    "index.html";
+
                 return;
             }
 
-            currentUser = user;
+
+            currentUser =
+                user;
+
 
             await findExistingTeam();
         }
     );
 }
 
-if (document.readyState === "loading") {
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
     document.addEventListener(
         "DOMContentLoaded",
-        initTeamPage,
-        { once: true }
+        initializeTeamPage,
+        {
+            once: true
+        }
     );
-} else {
-    initTeamPage();
+
+}
+
+else {
+
+    initializeTeamPage();
 }
