@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+```
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+    Battle Arena Showdown Season 1
+</title>
+
+<link
+    rel="stylesheet"
+    href="showdown-s1.css"
+>
+```
+
+</head>
+
+<body>
+
+```
+<!-- =========================================
+     HEADER
+========================================== -->
+
+<header class="showdown-header">
+
+    <a
+        href="index.html"
+        class="showdown-brand"
+    >
+        BATTLE
+        <span>ARENA</span>
+    </a>
+
+    <a
+        href="index.html"
+        class="showdown-back"
+    >
+        ← HOME
+    </a>
+
+</header>
+
+
+<!-- =========================================
+     MAIN
+========================================== -->
+
+<main class="showdown-wrapper">
+
+
+    <!-- =====================================
+         TOURNAMENT HERO
+    ====================================== -->
+
+    <section class="showdown-hero">
+
+        <div class="hero-copy">
+
+            <span class="eyebrow">
+                BATTLE ARENA PRESENTS
+            </span>
+
+            <h1>
+                BATTLE ARENA
+                <span>SHOWDOWN</span>
+            </h1>
+
+            <div class="season-label">
+                SEASON 1
+            </div>
+
+            <p class="hero-description">
+                Enter the arena. Represent your squad.
+                Fight for the championship.
+            </p>
+
+        </div>
+
+
+        <!-- =================================
+             POSTER
+        ================================== -->
+
+        <div class="showdown-poster-box">
+
+            <!-- Replace this image later -->
+            <div class="poster-placeholder">
+
+                <span>
+                    BATTLE ARENA
+                </span>
+
+                <strong>
+                    SHOWDOWN
+                </strong>
+
+                <small>
+                    SEASON 1
+                </small>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         TOURNAMENT STATS
+    ========================================== -->
+
+    <section class="showdown-stats">
+
+        <div class="showdown-stat-card">
+
+            <small>
+                PRIZE POOL
+            </small>
+
+            <strong>
+                40,000 PKR
+            </strong>
+
+        </div>
+
+
+        <div class="showdown-stat-card">
+
+            <small>
+                TEAM SLOTS
+            </small>
+
+            <strong>
+                256
+            </strong>
+
+        </div>
+
+
+        <div class="showdown-stat-card">
+
+            <small>
+                GROUP SIZE
+            </small>
+
+            <strong>
+                12 TEAMS
+            </strong>
+
+        </div>
+
+
+        <div class="showdown-stat-card">
+
+            <small>
+                STATUS
+            </small>
+
+            <strong class="status-live">
+                REGISTRATION OPEN
+            </strong>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         REGISTRATION PANEL
+    ========================================== -->
+
+    <section class="registration-panel">
+
+        <div class="registration-heading">
+
+            <span>
+                TOURNAMENT REGISTRATION
+            </span>
+
+            <h2>
+                SECURE YOUR TEAM SLOT
+            </h2>
+
+            <p>
+                Tournament registration is available
+                only to eligible team captains.
+            </p>
+
+        </div>
+
+
+        <!-- =====================================
+             REGISTRATION INFORMATION
+        ====================================== -->
+
+        <div class="registration-info-grid">
+
+            <div class="registration-info">
+
+                <small>
+                    REGISTRATION TYPE
+                </small>
+
+                <strong>
+                    CAPTAIN ONLY
+                </strong>
+
+            </div>
+
+
+            <div class="registration-info">
+
+                <small>
+                    REQUIRED TEAM SIZE
+                </small>
+
+                <strong>
+                    4+ PLAYERS
+                </strong>
+
+            </div>
+
+
+            <div class="registration-info">
+
+                <small>
+                    MAXIMUM TEAM SIZE
+                </small>
+
+                <strong>
+                    8 PLAYERS
+                </strong>
+
+            </div>
+
+
+            <div class="registration-info">
+
+                <small>
+                    GROUP ALLOCATION
+                </small>
+
+                <strong>
+                    AUTOMATIC
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             REGISTER BUTTON
+        ====================================== -->
+
+        <div class="registration-action">
+
+            <button
+                id="registerTournamentBtn"
+                class="register-tournament-btn"
+                type="button"
+            >
+                REGISTER NOW
+            </button>
+
+            <div
+                id="registrationStatus"
+                class="registration-status"
+            >
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             CAPTAIN NOTICE
+        ====================================== -->
+
+        <div class="captain-notice">
+
+            <div class="notice-icon">
+                ⚡
+            </div>
+
+            <div>
+
+                <strong>
+                    CAPTAIN REGISTRATION
+                </strong>
+
+                <p>
+                    Only the captain of an eligible
+                    Battle Arena team can register the
+                    team for this tournament.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         SLOT INFORMATION
+    ========================================== -->
+
+    <section class="slot-section">
+
+        <div class="section-heading">
+
+            <span>
+                COMPETITION STRUCTURE
+            </span>
+
+            <h2>
+                GROUP ALLOCATION
+            </h2>
+
+            <p>
+                Registered teams are automatically
+                placed into the next available group.
+            </p>
+
+        </div>
+
+
+        <div class="group-rule-card">
+
+            <div class="group-rule-main">
+
+                <strong>
+                    12
+                </strong>
+
+                <span>
+                    TEAMS PER GROUP
+                </span>
+
+            </div>
+
+
+            <div class="group-rule-arrow">
+                →
+            </div>
+
+
+            <div class="group-rule-main">
+
+                <strong>
+                    21
+                </strong>
+
+                <span>
+                    FULL GROUPS
+                </span>
+
+            </div>
+
+
+            <div class="group-rule-arrow">
+                →
+            </div>
+
+
+            <div class="group-rule-main">
+
+                <strong>
+                    252
+                </strong>
+
+                <span>
+                    GROUPED TEAMS
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="reserve-note">
+
+            <strong>
+                FINAL 4 SLOTS
+            </strong>
+
+            <span>
+                The remaining four places will be held
+                as reserve slots because 256 cannot be
+                divided evenly into 12-team groups.
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         REGISTRATION RESULT
+    ========================================== -->
+
+    <section
+        id="registrationResult"
+        class="registration-result hidden"
+    >
+
+        <div class="result-badge">
+            REGISTERED
+        </div>
+
+        <h2>
+            YOUR TEAM IS IN
+        </h2>
+
+        <div class="result-details">
+
+            <div>
+                <small>
+                    TEAM
+                </small>
+
+                <strong id="registeredTeamName">
+                    -
+                </strong>
+            </div>
+
+
+            <div>
+                <small>
+                    GROUP
+                </small>
+
+                <strong id="registeredGroupName">
+                    -
+                </strong>
+            </div>
+
+
+            <div>
+                <small>
+                    SLOT
+                </small>
+
+                <strong id="registeredSlot">
+                    -
+                </strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<!-- =========================================
+     FOOTER
+========================================== -->
+
+<footer class="showdown-footer">
+
+    <strong>
+        BATTLE ARENA
+    </strong>
+
+    <span>
+        SHOWDOWN • SEASON 1
+    </span>
+
+</footer>
+
+
+<script
+    type="module"
+    src="showdown-s1.js"
+></script>
+```
+
+</body>
+
+</html>
