@@ -1394,3 +1394,368 @@ MOBILE
     box-shadow:
         0 15px 40px rgba(124,92,255,.18);
 }
+/* ==========================================
+   BATTLE ARENA SHOWDOWN — HOME
+========================================== */
+
+.ba-showdown-home-section {
+
+    width:
+        min(
+            1180px,
+            calc(100% - 32px)
+        );
+
+    margin:
+        70px auto;
+}
+
+
+.ba-showdown-home-heading span {
+
+    display: block;
+
+    color: #22e8ff;
+
+    font:
+        800 10px
+        "Inter",
+        Arial,
+        sans-serif;
+
+    letter-spacing: 2px;
+}
+
+
+.ba-showdown-home-heading h2 {
+
+    margin-top: 7px;
+
+    color: #ffffff;
+
+    font:
+        900 42px/1
+        "Barlow Condensed",
+        Arial,
+        sans-serif;
+
+    letter-spacing: 1px;
+}
+
+
+
+/* MAIN CARD */
+
+.ba-showdown-home-card {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(250px, 0.72fr)
+        1.28fr;
+
+    gap: 28px;
+
+    margin-top: 22px;
+
+    padding: 18px;
+
+    border:
+        1px solid
+        rgba(34,232,255,0.2);
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(7,19,34,0.95),
+            rgba(4,10,18,0.95)
+        );
+
+    box-shadow:
+        0 0 30px
+        rgba(34,232,255,0.05);
+}
+
+
+
+/* POSTER */
+
+.ba-showdown-home-poster img {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    border-radius: 13px;
+}
+
+
+
+/* INFO */
+
+.ba-showdown-home-info {
+
+    align-self: center;
+
+    padding:
+        12px 14px;
+}
+
+
+
+/* LIVE BADGE */
+
+.ba-live-badge {
+
+    display: inline-block;
+
+    padding:
+        8px 11px;
+
+    border:
+        1px solid
+        rgba(0,255,179,0.35);
+
+    border-radius: 999px;
+
+    background:
+        rgba(0,255,179,0.05);
+
+    color: #00ffb3;
+
+    font:
+        800 9px
+        "Inter",
+        Arial,
+        sans-serif;
+
+    letter-spacing: 1.3px;
+}
+
+
+
+/* TITLE */
+
+.ba-showdown-home-info h3 {
+
+    margin-top: 18px;
+
+    color: #ffffff;
+
+    font:
+        900
+        clamp(42px,6vw,76px)
+        /0.84
+        "Barlow Condensed",
+        Arial,
+        sans-serif;
+
+    letter-spacing: 0.8px;
+}
+
+
+.ba-showdown-home-info h3 span {
+
+    display: block;
+
+    color: #22e8ff;
+
+    text-shadow:
+        0 0 16px
+        rgba(34,232,255,0.2);
+}
+
+
+
+/* SEASON */
+
+.ba-season {
+
+    display: inline-block;
+
+    margin-top: 17px;
+
+    padding:
+        8px 15px;
+
+    border:
+        1px solid
+        rgba(145,92,255,0.55);
+
+    border-radius: 6px;
+
+    background:
+        rgba(145,92,255,0.08);
+
+    color: #c2adff;
+
+    font:
+        900 12px
+        "Barlow Condensed",
+        Arial,
+        sans-serif;
+
+    letter-spacing: 2px;
+}
+
+
+
+/* STATS */
+
+.ba-home-stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap: 9px;
+
+    margin:
+        22px 0;
+}
+
+
+.ba-home-stats > div {
+
+    padding: 14px;
+
+    border:
+        1px solid
+        rgba(255,255,255,0.06);
+
+    border-radius: 10px;
+
+    background:
+        rgba(255,255,255,0.018);
+}
+
+
+.ba-home-stats small {
+
+    display: block;
+
+    color: #71869a;
+
+    font:
+        800 8px
+        "Inter",
+        Arial,
+        sans-serif;
+
+    letter-spacing: 1.2px;
+}
+
+
+.ba-home-stats strong {
+
+    display: block;
+
+    margin-top: 5px;
+
+    color: #ffffff;
+
+    font:
+        900 19px
+        "Barlow Condensed",
+        Arial,
+        sans-serif;
+}
+
+
+
+/* DESCRIPTION */
+
+.ba-showdown-home-info p {
+
+    margin-bottom: 20px;
+
+    color: #8294a8;
+
+    font:
+        400 12px/1.6
+        "Inter",
+        Arial,
+        sans-serif;
+}
+
+
+
+/* REGISTER BUTTON */
+
+.ba-register-home-btn {
+
+    display: inline-block;
+
+    padding:
+        14px 20px;
+
+    border:
+        1px solid
+        #22e8ff;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(34,232,255,0.14),
+            rgba(145,92,255,0.12)
+        );
+
+    color: #ecffff;
+
+    font:
+        900 11px
+        "Inter",
+        Arial,
+        sans-serif;
+
+    letter-spacing: 1.4px;
+
+    transition: 0.2s;
+}
+
+
+.ba-register-home-btn:hover {
+
+    color: #22e8ff;
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 0 20px
+        rgba(34,232,255,0.15);
+}
+
+
+
+/* MOBILE */
+
+@media (
+    max-width: 760px
+) {
+
+    .ba-showdown-home-card {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .ba-home-stats {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .ba-showdown-home-info {
+
+        padding: 8px;
+    }
+
+}
