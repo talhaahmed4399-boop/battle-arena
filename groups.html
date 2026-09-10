@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Battle Arena Showdown | Live Groups
+    </title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="groups.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="groups-header">
+
+    <a
+        href="index.html"
+        class="groups-brand"
+    >
+        BATTLE <span>ARENA</span>
+    </a>
+
+
+    <div class="header-links">
+
+        <a href="showdown-s1.html">
+            TOURNAMENT
+        </a>
+
+        <a href="index.html">
+            HOME
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<main class="groups-wrapper">
+
+
+    <!-- =====================================
+         PAGE TITLE
+    ====================================== -->
+
+    <section class="groups-hero">
+
+        <span>
+            BATTLE ARENA SHOWDOWN
+        </span>
+
+        <h1>
+            LIVE GROUPS
+        </h1>
+
+        <p>
+            Season 1 tournament groups and registered
+            team slots update automatically.
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================================
+         LIVE SUMMARY
+    ====================================== -->
+
+    <section class="live-summary">
+
+
+        <div class="summary-card">
+
+            <small>
+                REGISTERED TEAMS
+            </small>
+
+            <strong id="registeredCount">
+                0
+            </strong>
+
+            <span>
+                / 256
+            </span>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <small>
+                FULL GROUPS
+            </small>
+
+            <strong id="fullGroupCount">
+                0
+            </strong>
+
+            <span>
+                / 21
+            </span>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <small>
+                GROUPED SLOTS
+            </small>
+
+            <strong id="groupedCount">
+                0
+            </strong>
+
+            <span>
+                / 252
+            </span>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <small>
+                RESERVE
+            </small>
+
+            <strong id="reserveCount">
+                0
+            </strong>
+
+            <span>
+                / 4
+            </span>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =====================================
+         SEARCH
+    ====================================== -->
+
+    <section class="groups-controls">
+
+        <div class="search-box">
+
+            <span>
+                ⌕
+            </span>
+
+            <input
+                id="groupSearch"
+                type="search"
+                placeholder="Search team name or tag..."
+                autocomplete="off"
+            >
+
+        </div>
+
+
+        <select id="groupFilter">
+
+            <option value="all">
+                ALL GROUPS
+            </option>
+
+        </select>
+
+    </section>
+
+
+
+    <!-- =====================================
+         STATUS
+    ====================================== -->
+
+    <div
+        id="groupsStatus"
+        class="groups-status"
+    >
+        LOADING LIVE GROUPS...
+    </div>
+
+
+
+    <!-- =====================================
+         GROUPS
+    ====================================== -->
+
+    <section
+        id="groupsContainer"
+        class="groups-container"
+    >
+
+        <!-- Javascript loads groups here -->
+
+    </section>
+
+
+
+    <!-- =====================================
+         RESERVE
+    ====================================== -->
+
+    <section
+        id="reserveSection"
+        class="reserve-section"
+    >
+
+        <div class="reserve-heading">
+
+            <span>
+                FINAL FOUR
+            </span>
+
+            <h2>
+                RESERVE SLOTS
+            </h2>
+
+        </div>
+
+
+        <div
+            id="reserveContainer"
+            class="reserve-container"
+        >
+
+        </div>
+
+    </section>
+
+
+
+</main>
+
+
+
+<footer class="groups-footer">
+
+    <strong>
+        BATTLE ARENA
+    </strong>
+
+    <span>
+        SHOWDOWN • SEASON 1
+    </span>
+
+</footer>
+
+
+
+<script
+    type="module"
+    src="groups.js"
+></script>
+
+
+</body>
+
+</html>
