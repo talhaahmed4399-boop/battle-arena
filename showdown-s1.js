@@ -339,19 +339,19 @@ async function loadCurrentTeam(
 
 
     const teamSnapshot =
-        await getDocs(
-            query(
-                collection(
-                    db,
-                    "teams"
-                ),
-                where(
-                    "__name__",
-                    "==",
-                    membership.teamId
-                )
+    await getDocs(
+        query(
+            collection(
+                db,
+                "teams"
+            ),
+            where(
+                "__name__",
+                "==",
+                membership.teamId
             )
-        );
+        )
+    );
 
 
 
